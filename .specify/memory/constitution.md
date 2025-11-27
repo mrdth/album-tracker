@@ -2,8 +2,8 @@
 SYNC IMPACT REPORT
 ==================
 Version Change: 1.0.0 → 1.1.0
-Rationale: Minor version bump - materially refined Principle III (User Experience Consistency) 
-to align with single-user MVP scope, removing WCAG 2.1 Level AA requirement and simplifying 
+Rationale: Minor version bump - materially refined Principle III (User Experience Consistency)
+to align with single-user MVP scope, removing WCAG 2.1 Level AA requirement and simplifying
 to appropriate baseline UX standards.
 
 Modified Principles:
@@ -38,8 +38,9 @@ All code MUST adhere to the following quality standards:
 - Code MUST avoid duplication; shared logic MUST be extracted into reusable functions
 - Code MUST handle errors gracefully with appropriate error messages
 - Magic numbers and strings MUST be replaced with named constants
+- All packages used MUST be at their latest version, and installed via npm
 
-**Rationale**: Quality code reduces bugs, accelerates onboarding, and enables confident refactoring. Poor code quality compounds technical debt exponentially.
+**Rationale**: Quality code reduces bugs, accelerates onboarding, and enables confident refactoring. Poor code quality compounds technical debt exponentially. Outdated packages can introduce security vulnerabilities and compatibility issues.
 
 ### II. Testing Standards (NON-NEGOTIABLE)
 
