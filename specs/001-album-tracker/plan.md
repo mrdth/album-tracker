@@ -120,7 +120,7 @@ backend/
 │   │   ├── Artist.ts           # Artist entity
 │   │   ├── Album.ts            # Album entity  
 │   │   ├── Settings.ts         # Settings entity
-│   │   └── ManualOverride.ts   # Override tracking
+│   │   └── FilesystemCache.ts  # Filesystem scan cache
 │   ├── repositories/
 │   │   ├── ArtistRepository.ts
 │   │   ├── AlbumRepository.ts

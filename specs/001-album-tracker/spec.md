@@ -144,7 +144,7 @@ A user has added new albums to their music library or renamed folders. They trig
 - **FR-004**: System MUST store album metadata including title, release year, MBID, and type information
 - **FR-005**: System MUST allow user to configure a library root path in Settings
 - **FR-006**: System MUST validate library path for existence and readability before accepting
-- **FR-007**: System MUST scan entire filesystem on application startup and cache results; users manually trigger "Rescan" from Artist Detail page to re-match against current cache
+- **FR-007**: System MUST scan entire filesystem on application startup to populate cache (no matching performed); users manually trigger "Rescan" from Artist Detail page to run album matching against current cache
 - **FR-008**: System MUST locate artist folders using naming rules: character normalization, article movement (e.g., "The 1975" → "1975, The"), and grouped directories (= A =, = B =, ... = # =)
 - **FR-009**: System MUST parse album folder names assuming format [YYYY] Title with case-insensitive and punctuation-insensitive matching
 - **FR-010**: System MUST match album folders to imported album metadata and assign ownership status: Owned (≥80% string similarity), Ambiguous (<80% but matched), or Missing (no match found)
@@ -169,7 +169,7 @@ A user has added new albums to their music library or renamed folders. They trig
 
 - **Artist**: Represents a music artist with unique identifier (MBID), name, disambiguation text, optional manually-linked folder path, and computed counts (total albums, owned albums)
 - **Album**: Represents a release-group of type "Album" belonging to an artist, including unique identifier (MBID), title, release year, type/secondary type, ownership status (Owned/Missing/Ambiguous), optional filesystem folder path, and optional match confidence score
-- **Settings**: Application configuration including library root path, optional naming rule flags, and optional album type filters (include/exclude compilations, live albums, etc.)
+- **Settings**: Application configuration including library root path, last scan timestamp, optional naming rule flags, and optional album type filters (include/exclude compilations, live albums, etc.)
 - **Manual Override**: User-specified folder link for an artist or album that persists across scans and overrides automatic detection
 
 ## Success Criteria *(mandatory)*
