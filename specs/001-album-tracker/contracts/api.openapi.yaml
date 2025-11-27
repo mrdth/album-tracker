@@ -1,0 +1,751 @@
+openapi: 3.0.3
+info:
+  title: Album Tracker API
+  description: |
+    REST API for tracking music album collections by comparing MusicBrainz discographies
+    against local filesystem folder structure.
+
+    **Key Features**:
+    - Artist search and discography import from MusicBrainz
+    - Filesystem scanning with cached results
+    - Album ownership tracking (Owned/Missing/Ambiguous)
+    - Manual override persistence across scans
+    - Server-side directory browser for folder selection
+
+    **Constitution Compliance**: All endpoints include error handling, validation,
+    and accessibility-friendly response formats per principles I, III, and V.
+  version: 1.0.0
+  contact:
+    name: Album Tracker Team
+    url: https://github.com/mrdth/album-tracker
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: http://localhost:8080/api
+    description: Docker deployment
+
+tags:
+  - name: Artists
+    description: Artist search, import, and detail operations
+  - name: Albums
+    description: Album management and manual overrides
+  - name: Settings
+    description: Application configuration (library path, thresholds)
+  - name: Filesystem
+    description: Directory browsing and scan operations
+
+paths:
+  # ==================== Artists ====================
+
+  /artists/search:
+    get:
+      tags: [Artists]
+      summary: Search for artists by name
+      description: |
+        Query MusicBrainz API for artists matching search term. Returns sorted by relevance score.
+
+        **User Story**: P1 - Search and Import Artist Discography
+        **Functional Requirements**: FR-001, FR-002
+        **Success Criteria**: SC-001 (complete within 30 seconds)
+      operationId: searchArtists
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Artist name search term
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+          example: "The Beatles"
+      responses:
+        '200':
+          description: Search results (sorted by score descending)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ArtistSearchResult'
+                  total:
+                    type: integer
+                    description: Total number of results
+                    example: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          description: MusicBrainz API unavailable after retries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "MusicBrainz API unavailable after 3 retry attempts. Please try again later."
+                code: "MUSICBRAINZ_UNAVAILABLE"
+
+  /artists:
+    post:
+      tags: [Artists]
+      summary: Import artist and discography
+      description: |
+        Import artist metadata and album discography from MusicBrainz.
+        Automatically fetches all release-groups of type "Album" (excludes compilations, live, etc.).
+
+        **User Story**: P1 - Search and Import Artist Discography
+        **Functional Requirements**: FR-003, FR-004
+        **Success Criteria**: SC-001 (complete within 30 seconds)
+      operationId: importArtist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mbid]
+              properties:
+                mbid:
+                  type: string
+                  format: uuid
+                  description: MusicBrainz artist ID
+                  example: "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d"
+      responses:
+        '201':
+          description: Artist imported successfully
+          headers:
+            Location:
+              description: URL to artist detail endpoint
+              schema:
+                type: string
+              example: "/api/artists/1"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtistDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Artist already exists (returns existing artist)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtistDetail'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    get:
+      tags: [Artists]
+      summary: List all imported artists (Collection Overview)
+      description: |
+        Retrieve all imported artists with ownership statistics.
+
+        **User Story**: P3 - View Collection Overview and Progress
+        **Functional Requirements**: FR-012
+        **Success Criteria**: SC-005 (no lag with 100 artists)
+      operationId: listArtists
+      responses:
+        '200':
+          description: List of artists with statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artists:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ArtistSummary'
+                  total:
+                    type: integer
+                    example: 42
+
+  /artists/{artistId}:
+    get:
+      tags: [Artists]
+      summary: Get artist detail with all albums
+      description: |
+        Retrieve artist metadata and complete album list with ownership status.
+
+        **User Story**: P4 - Manage Album Detail and Manual Overrides
+        **Functional Requirements**: FR-013
+        **Success Criteria**: SC-008 (no lag with 1000+ albums)
+      operationId: getArtistDetail
+      parameters:
+        - $ref: '#/components/parameters/ArtistId'
+      responses:
+        '200':
+          description: Artist detail with albums
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtistDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Artists]
+      summary: Update artist (link folder manually)
+      description: |
+        Manually link artist folder path, overriding automatic detection.
+
+        **User Story**: P5 - Link Artist Folder Manually
+        **Functional Requirements**: FR-017
+      operationId: updateArtist
+      parameters:
+        - $ref: '#/components/parameters/ArtistId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                linked_folder_path:
+                  type: string
+                  nullable: true
+                  description: Folder path (null to clear manual link)
+                  example: "/music/= B =/Beatles, The"
+      responses:
+        '200':
+          description: Artist updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtistDetail'
+        '400':
+          description: Invalid folder path (doesn't exist or outside library root)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Artists]
+      summary: Delete artist and all albums
+      description: Cascade delete artist and related albums (with confirmation).
+      operationId: deleteArtist
+      parameters:
+        - $ref: '#/components/parameters/ArtistId'
+      responses:
+        '204':
+          description: Artist deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== Albums ====================
+
+  /albums/{albumId}:
+    get:
+      tags: [Albums]
+      summary: Get album detail
+      description: Retrieve single album with ownership info.
+      operationId: getAlbum
+      parameters:
+        - $ref: '#/components/parameters/AlbumId'
+      responses:
+        '200':
+          description: Album detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Albums]
+      summary: Update album (manual override)
+      description: |
+        Manually set album folder path or toggle ownership status.
+        Sets is_manual_override flag to persist across rescans.
+
+        **User Story**: P4 - Manage Album Detail and Manual Overrides
+        **Functional Requirements**: FR-014, FR-015, FR-016
+        **Success Criteria**: SC-004 (override in <20 seconds), SC-006 (100% persistence)
+      operationId: updateAlbum
+      parameters:
+        - $ref: '#/components/parameters/AlbumId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matched_folder_path:
+                  type: string
+                  nullable: true
+                  description: Folder path (null to clear)
+                  example: "/music/= B =/Beatles, The/[1969] Abbey Road"
+                ownership_status:
+                  type: string
+                  enum: [Owned, Missing]
+                  description: Manual toggle (Ambiguous not allowed for manual)
+                  example: "Owned"
+      responses:
+        '200':
+          description: Album updated with manual override
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
+        '400':
+          description: Invalid folder path or ownership status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== Settings ====================
+
+  /settings:
+    get:
+      tags: [Settings]
+      summary: Get application settings
+      description: Retrieve current configuration (singleton).
+      operationId: getSettings
+      responses:
+        '200':
+          description: Current settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+
+    patch:
+      tags: [Settings]
+      summary: Update application settings
+      description: |
+        Update configuration. Library path changes trigger validation.
+
+        **User Story**: P2 - Configure Library Path and Scan Filesystem
+        **Functional Requirements**: FR-005, FR-006
+      operationId: updateSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                library_root_path:
+                  type: string
+                  description: Absolute path to music library
+                  example: "/mnt/music"
+                similarity_threshold:
+                  type: number
+                  format: float
+                  minimum: 0.0
+                  maximum: 1.0
+                  description: Match confidence threshold (Owned vs Ambiguous)
+                  example: 0.80
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '400':
+          description: Invalid library path (doesn't exist, not readable, or validation failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Library path '/invalid/path' does not exist or is not readable"
+                code: "INVALID_LIBRARY_PATH"
+
+  # ==================== Filesystem ====================
+
+  /filesystem/scan:
+    post:
+      tags: [Filesystem]
+      summary: Trigger filesystem rescan
+      description: |
+        Refresh filesystem cache and re-match albums for specified artist.
+
+        **User Story**: P6 - Rescan After Library Changes
+        **Functional Requirements**: FR-024
+        **Success Criteria**: SC-002 (50 albums in <2 minutes), SC-007 (100% accuracy)
+      operationId: rescanFilesystem
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                artist_id:
+                  type: integer
+                  description: Artist to re-match (omit for full library scan)
+                  example: 1
+      responses:
+        '200':
+          description: Scan completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scanned_folders:
+                    type: integer
+                    description: Total folders scanned
+                    example: 125
+                  matched_albums:
+                    type: integer
+                    description: Albums matched (automatic only)
+                    example: 42
+                  duration_ms:
+                    type: integer
+                    description: Scan duration in milliseconds
+                    example: 85000
+        '400':
+          description: Invalid artist_id or library path not configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /filesystem/browse:
+    get:
+      tags: [Filesystem]
+      summary: Browse directory tree (server-side)
+      description: |
+        Retrieve subdirectories for path (directories only, no files).
+        Used for manual artist/album folder selection.
+
+        **User Story**: P4, P5 - Manual folder selection
+        **Functional Requirements**: FR-026
+        **Security**: Path traversal prevention enforced (research.md findings)
+      operationId: browseDirectory
+      parameters:
+        - name: path
+          in: query
+          required: false
+          description: Directory path (defaults to library root if omitted)
+          schema:
+            type: string
+          example: "/music/= B ="
+      responses:
+        '200':
+          description: List of subdirectories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_path:
+                    type: string
+                    description: Requested path (absolute)
+                    example: "/music/= B ="
+                  parent_path:
+                    type: string
+                    nullable: true
+                    description: Parent directory (null if at library root)
+                    example: "/music"
+                  directories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Directory name
+                          example: "Beatles, The"
+                        path:
+                          type: string
+                          description: Absolute path
+                          example: "/music/= B =/Beatles, The"
+        '400':
+          description: Invalid path (traversal attempt or outside library root)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Path traversal detected or path outside library root"
+                code: "INVALID_PATH"
+        '403':
+          description: Permission denied reading directory
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ==================== Components ====================
+
+components:
+  parameters:
+    ArtistId:
+      name: artistId
+      in: path
+      required: true
+      description: Artist database ID
+      schema:
+        type: integer
+      example: 1
+
+    AlbumId:
+      name: albumId
+      in: path
+      required: true
+      description: Album database ID
+      schema:
+        type: integer
+      example: 42
+
+  schemas:
+    ArtistSearchResult:
+      type: object
+      description: Artist search result from MusicBrainz
+      required: [mbid, name]
+      properties:
+        mbid:
+          type: string
+          format: uuid
+          description: MusicBrainz artist ID
+          example: "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d"
+        name:
+          type: string
+          description: Artist name
+          example: "The Beatles"
+        sort_name:
+          type: string
+          nullable: true
+          description: Sort name (e.g., "Beatles, The")
+          example: "Beatles, The"
+        disambiguation:
+          type: string
+          nullable: true
+          description: Disambiguating text
+          example: "English rock band"
+        score:
+          type: integer
+          description: MusicBrainz relevance score (0-100)
+          example: 100
+
+    ArtistSummary:
+      type: object
+      description: Artist with ownership statistics (Collection Overview)
+      required: [id, mbid, name, total_albums, owned_albums]
+      properties:
+        id:
+          type: integer
+          description: Database ID
+          example: 1
+        mbid:
+          type: string
+          format: uuid
+          example: "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d"
+        name:
+          type: string
+          example: "The Beatles"
+        disambiguation:
+          type: string
+          nullable: true
+          example: "English rock band"
+        total_albums:
+          type: integer
+          description: Total albums in discography
+          example: 13
+        owned_albums:
+          type: integer
+          description: Albums marked as Owned
+          example: 10
+        completion_percentage:
+          type: number
+          format: float
+          description: (owned_albums / total_albums) * 100
+          example: 76.92
+
+    ArtistDetail:
+      type: object
+      description: Artist with complete album list
+      required: [id, mbid, name, albums]
+      properties:
+        id:
+          type: integer
+          example: 1
+        mbid:
+          type: string
+          format: uuid
+          example: "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d"
+        name:
+          type: string
+          example: "The Beatles"
+        sort_name:
+          type: string
+          nullable: true
+          example: "Beatles, The"
+        disambiguation:
+          type: string
+          nullable: true
+          example: "English rock band"
+        linked_folder_path:
+          type: string
+          nullable: true
+          description: Manually linked artist folder
+          example: "/music/= B =/Beatles, The"
+        total_albums:
+          type: integer
+          example: 13
+        owned_albums:
+          type: integer
+          example: 10
+        albums:
+          type: array
+          items:
+            $ref: '#/components/schemas/Album'
+
+    Album:
+      type: object
+      description: Album with ownership tracking
+      required: [id, artist_id, mbid, title, ownership_status, is_manual_override]
+      properties:
+        id:
+          type: integer
+          example: 42
+        artist_id:
+          type: integer
+          example: 1
+        mbid:
+          type: string
+          format: uuid
+          example: "42c3e1d2-be17-4e0d-b10b-fc9e0be17e2c"
+        title:
+          type: string
+          example: "Abbey Road"
+        release_year:
+          type: integer
+          nullable: true
+          description: First release year
+          example: 1969
+        release_date:
+          type: string
+          nullable: true
+          description: ISO date (YYYY, YYYY-MM, or YYYY-MM-DD)
+          example: "1969-09-26"
+        disambiguation:
+          type: string
+          nullable: true
+          example: null
+        ownership_status:
+          type: string
+          enum: [Owned, Missing, Ambiguous]
+          description: Ownership state
+          example: "Owned"
+        matched_folder_path:
+          type: string
+          nullable: true
+          description: Filesystem path if matched
+          example: "/music/= B =/Beatles, The/[1969] Abbey Road"
+        match_confidence:
+          type: number
+          format: float
+          nullable: true
+          minimum: 0.0
+          maximum: 1.0
+          description: String similarity score (0.0-1.0)
+          example: 0.95
+        is_manual_override:
+          type: boolean
+          description: True if manually set by user
+          example: false
+
+    Settings:
+      type: object
+      description: Application configuration (singleton)
+      required: [id, library_root_path, similarity_threshold, api_rate_limit_ms, max_api_retries]
+      properties:
+        id:
+          type: integer
+          enum: [1]
+          description: Always 1 (singleton)
+          example: 1
+        library_root_path:
+          type: string
+          description: Absolute path to music library root
+          example: "/mnt/music"
+        similarity_threshold:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Match confidence threshold (>= threshold = Owned, < threshold = Ambiguous)
+          example: 0.80
+        api_rate_limit_ms:
+          type: integer
+          description: Milliseconds between MusicBrainz API calls
+          example: 1000
+        max_api_retries:
+          type: integer
+          description: Max exponential backoff retry attempts for API failures
+          example: 3
+
+    Error:
+      type: object
+      description: Standard error response format
+      required: [error, code]
+      properties:
+        error:
+          type: string
+          description: Human-readable error message (user-friendly, no technical internals)
+          example: "The specified artist could not be found."
+        code:
+          type: string
+          description: Machine-readable error code (uppercase snake_case)
+          example: "ARTIST_NOT_FOUND"
+        details:
+          type: object
+          description: Additional context (optional, for validation errors)
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Invalid request (validation error)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Validation failed: search term must be between 1 and 200 characters"
+            code: "VALIDATION_ERROR"
+            details:
+              field: "q"
+              constraint: "minLength"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Artist with ID 999 not found"
+            code: "ARTIST_NOT_FOUND"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "An unexpected error occurred. Please try again later."
+            code: "INTERNAL_SERVER_ERROR"
+
+  securitySchemes: {}
+    # No authentication required (single-user application per spec)
+
+security: []
+  # No global security (single-user application)
