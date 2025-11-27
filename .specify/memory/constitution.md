@@ -1,23 +1,26 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version Change: [not versioned] → 1.0.0
-Rationale: Initial constitution ratification establishing foundational principles
+Version Change: 1.0.0 → 1.1.0
+Rationale: Minor version bump - materially refined Principle III (User Experience Consistency) 
+to align with single-user MVP scope, removing WCAG 2.1 Level AA requirement and simplifying 
+to appropriate baseline UX standards.
 
-Modified Principles: N/A (initial creation)
+Modified Principles:
+- Principle III: User Experience Consistency
+  - Removed: WCAG 2.1 Level AA accessibility requirement (overkill for single-user personal tool)
+  - Updated: Clarified UX requirements focus on consistency, feedback, and usability for MVP scope
+  - Rationale updated to reflect single-user context
 
-Added Sections:
-- Core Principles (5 principles: Code Quality, Testing Standards, User Experience Consistency, Maintainability, Security)
-- Development Standards
-- Quality Gates
-- Governance
+Added Sections: None
 
-Removed Sections: N/A (initial creation)
+Removed Sections: None
 
 Templates Requiring Updates:
-- ✅ plan-template.md - Constitution Check section aligns with principles
-- ✅ spec-template.md - User scenarios and requirements align with UX consistency principle
-- ✅ tasks-template.md - Test-first approach and phase structure align with testing standards
+- ✅ plan-template.md - Constitution Check section already updated to reflect simplified UX requirements
+- ✅ spec-template.md - User scenarios remain appropriate; accessibility not mandatory
+- ✅ tasks-template.md - No accessibility-specific task requirements enforced
+- ✅ research.md - Accessibility section marked as "FUTURE ENHANCEMENT - NOT REQUIRED FOR MVP"
 
 Follow-up TODOs: None
 -->
@@ -61,10 +64,10 @@ User-facing features MUST provide consistent and predictable experiences:
 - User interactions MUST provide immediate feedback (loading states, confirmations, errors)
 - Error messages MUST be user-friendly, actionable, and never expose technical internals
 - Navigation patterns MUST be consistent across the application
-- Accessibility MUST be built-in from the start (WCAG 2.1 Level AA minimum)
+- Semantic HTML MUST be used for proper structure (buttons, navigation, forms)
 - Performance MUST meet defined thresholds: page loads <2s, interactions <100ms
 
-**Rationale**: Consistency builds user trust, reduces cognitive load, and minimizes support burden. Inconsistent UX creates confusion and abandonment.
+**Rationale**: For a single-user application, consistency and predictability are key to usability. Semantic HTML provides baseline structure and browser-native accessibility at no cost. Advanced accessibility features (screen readers, ARIA live regions, etc.) are not required for personal tools but may be added for future public deployment.
 
 ### IV. Maintainability
 
@@ -82,22 +85,23 @@ Code MUST be structured for long-term maintainability:
 
 Security MUST be considered at every layer:
 - User input MUST be validated and sanitized at system boundaries
-- Authentication and authorization MUST be enforced on all protected endpoints
-- Sensitive data MUST be encrypted at rest and in transit
+- Authentication and authorization MUST be enforced on all protected endpoints (if applicable)
+- Sensitive data MUST be encrypted at rest and in transit (if applicable)
 - Dependencies MUST be scanned for known vulnerabilities regularly
 - Security incidents MUST be logged with appropriate detail for forensics
 - Secrets MUST NEVER be committed to version control
 
-**Rationale**: Security breaches destroy user trust and can be catastrophic. Security must be proactive, not reactive.
+**Rationale**: Security breaches destroy user trust and can be catastrophic. Security must be proactive, not reactive. For single-user applications, focus on preventing common vulnerabilities (path traversal, injection attacks) rather than authentication/authorization complexity.
 
 ## Development Standards
 
 ### Code Review Requirements
 
-All code changes MUST undergo peer review before merging:
-- At least one approval from a team member required
+All code changes SHOULD undergo review before merging:
+- For single-developer projects: Self-review against constitution principles required
+- For team projects: At least one approval from a team member required
 - Reviewer MUST verify constitution compliance (especially principles I, II, V)
-- Automated checks (linting, tests, security scans) MUST pass before review
+- Automated checks (linting, tests, security scans) MUST pass before merge
 - Review feedback MUST be addressed before merge
 
 ### Documentation Requirements
@@ -105,7 +109,7 @@ All code changes MUST undergo peer review before merging:
 Documentation MUST be maintained alongside code:
 - Public APIs MUST have usage examples and parameter documentation
 - Complex algorithms MUST have explanation comments
-- Architecture decisions MUST be recorded in ADRs (Architecture Decision Records)
+- Architecture decisions SHOULD be recorded in ADRs (Architecture Decision Records)
 - Setup instructions MUST be tested on a clean environment
 
 ### Version Control Standards
@@ -114,7 +118,7 @@ Git workflow MUST follow these practices:
 - Feature branches follow naming: `###-feature-name`
 - Commits MUST be atomic and have clear messages following conventional commits
 - Main branch MUST always be deployable
-- No force-pushing to shared branches
+- No force-pushing to shared branches (for team projects)
 
 ## Quality Gates
 
@@ -123,7 +127,7 @@ The following gates MUST be passed before code can be merged:
 ### Pre-Implementation Gate
 - [ ] Feature specification exists with clear user stories
 - [ ] Architecture approach documented and reviewed
-- [ ] Tests written and verified to fail
+- [ ] Tests written and verified to fail (TDD)
 - [ ] Constitution compliance verified
 
 ### Pre-Merge Gate
@@ -131,46 +135,44 @@ The following gates MUST be passed before code can be merged:
 - [ ] Code coverage meets minimum threshold (80% for business logic)
 - [ ] Linting and formatting checks pass
 - [ ] Security scan shows no HIGH or CRITICAL vulnerabilities
-- [ ] Peer review approved
+- [ ] Self-review or peer review completed
 - [ ] Documentation updated
 
 ### Pre-Release Gate
 - [ ] All critical user journeys tested end-to-end
 - [ ] Performance benchmarks met
-- [ ] Accessibility audit passed
 - [ ] Security review completed
 - [ ] Migration guide prepared (if breaking changes)
 
 ## Governance
 
-This constitution supersedes all other development practices. All team members MUST:
+This constitution supersedes all other development practices. Project maintainers MUST:
 - Verify compliance during code reviews
 - Raise concerns when principles are violated
-- Propose amendments through documented RFC process
+- Propose amendments through documented process
 - Treat "NON-NEGOTIABLE" principles as blocking - violations require explicit exception approval
 
 ### Amendment Process
 
 Constitution amendments MUST:
-1. Be proposed via written RFC with rationale
+1. Be proposed with clear rationale
 2. Include impact analysis on existing code/processes
-3. Receive approval from majority of team
-4. Include migration plan if changes affect existing practices
+3. For single-developer projects: Document decision and reasoning
+4. For team projects: Receive approval from majority of team
 5. Update version following semantic versioning (see below)
 
 ### Versioning Policy
 
 Constitution versions follow MAJOR.MINOR.PATCH:
 - **MAJOR**: Principle removed or fundamentally redefined (backward incompatible)
-- **MINOR**: New principle added or existing principle materially expanded
+- **MINOR**: New principle added or existing principle materially expanded/refined
 - **PATCH**: Clarifications, wording improvements, typo fixes
 
 ### Compliance Review
 
 Constitution compliance MUST be reviewed:
-- During every pull request (principles I, II, V minimum)
-- During sprint retrospectives (identify systemic violations)
+- During every commit or pull request (principles I, II, V minimum)
 - During architecture reviews (principles III, IV)
-- Annually for comprehensive governance audit
+- Periodically to identify systemic issues
 
-**Version**: 1.0.0 | **Ratified**: 2025-11-27 | **Last Amended**: 2025-11-27
+**Version**: 1.1.0 | **Ratified**: 2025-11-27 | **Last Amended**: 2025-11-27
