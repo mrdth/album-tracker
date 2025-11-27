@@ -1,50 +1,176 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+==================
+Version Change: [not versioned] → 1.0.0
+Rationale: Initial constitution ratification establishing foundational principles
+
+Modified Principles: N/A (initial creation)
+
+Added Sections:
+- Core Principles (5 principles: Code Quality, Testing Standards, User Experience Consistency, Maintainability, Security)
+- Development Standards
+- Quality Gates
+- Governance
+
+Removed Sections: N/A (initial creation)
+
+Templates Requiring Updates:
+- ✅ plan-template.md - Constitution Check section aligns with principles
+- ✅ spec-template.md - User scenarios and requirements align with UX consistency principle
+- ✅ tasks-template.md - Test-first approach and phase structure align with testing standards
+
+Follow-up TODOs: None
+-->
+
+# Album Tracker Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Code Quality (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+All code MUST adhere to the following quality standards:
+- Code MUST be readable and self-documenting with clear variable/function names
+- Complex logic MUST include explanatory comments explaining the "why," not the "what"
+- Code MUST follow consistent style guidelines enforced by automated linters
+- Code MUST avoid duplication; shared logic MUST be extracted into reusable functions
+- Code MUST handle errors gracefully with appropriate error messages
+- Magic numbers and strings MUST be replaced with named constants
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Rationale**: Quality code reduces bugs, accelerates onboarding, and enables confident refactoring. Poor code quality compounds technical debt exponentially.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Testing Standards (NON-NEGOTIABLE)
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+Testing is mandatory and MUST follow this hierarchy:
+- **Test-Driven Development**: Tests MUST be written BEFORE implementation, fail first, then pass
+- **Contract Tests**: All public APIs and interfaces MUST have contract tests verifying inputs/outputs
+- **Integration Tests**: Cross-component interactions MUST have integration tests
+- **Unit Tests**: Complex business logic MUST have unit tests at >80% coverage
+- **End-to-End Tests**: Critical user journeys MUST have automated E2E tests
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Test requirements per change type:
+- New features: Contract + Integration + Unit tests required
+- Bug fixes: Regression test required before fix implementation
+- Refactoring: All existing tests MUST continue passing
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**Rationale**: Tests are executable documentation, regression insurance, and design feedback. Writing tests first forces good API design and prevents over-engineering.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### III. User Experience Consistency
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+User-facing features MUST provide consistent and predictable experiences:
+- UI components MUST follow a documented design system with consistent styling
+- User interactions MUST provide immediate feedback (loading states, confirmations, errors)
+- Error messages MUST be user-friendly, actionable, and never expose technical internals
+- Navigation patterns MUST be consistent across the application
+- Accessibility MUST be built-in from the start (WCAG 2.1 Level AA minimum)
+- Performance MUST meet defined thresholds: page loads <2s, interactions <100ms
+
+**Rationale**: Consistency builds user trust, reduces cognitive load, and minimizes support burden. Inconsistent UX creates confusion and abandonment.
+
+### IV. Maintainability
+
+Code MUST be structured for long-term maintainability:
+- MUST follow separation of concerns: presentation, business logic, data access
+- Dependencies MUST be minimal, justified, and kept up-to-date
+- Architecture MUST be documented with clear diagrams for complex flows
+- Breaking changes MUST include migration guides and deprecation warnings
+- Configuration MUST be externalized (no hardcoded environment-specific values)
+- YAGNI principle: Build what's needed now, not what might be needed later
+
+**Rationale**: Software spends 90% of its lifecycle in maintenance. Maintainable code has explicit boundaries, minimal coupling, and clear upgrade paths.
+
+### V. Security
+
+Security MUST be considered at every layer:
+- User input MUST be validated and sanitized at system boundaries
+- Authentication and authorization MUST be enforced on all protected endpoints
+- Sensitive data MUST be encrypted at rest and in transit
+- Dependencies MUST be scanned for known vulnerabilities regularly
+- Security incidents MUST be logged with appropriate detail for forensics
+- Secrets MUST NEVER be committed to version control
+
+**Rationale**: Security breaches destroy user trust and can be catastrophic. Security must be proactive, not reactive.
+
+## Development Standards
+
+### Code Review Requirements
+
+All code changes MUST undergo peer review before merging:
+- At least one approval from a team member required
+- Reviewer MUST verify constitution compliance (especially principles I, II, V)
+- Automated checks (linting, tests, security scans) MUST pass before review
+- Review feedback MUST be addressed before merge
+
+### Documentation Requirements
+
+Documentation MUST be maintained alongside code:
+- Public APIs MUST have usage examples and parameter documentation
+- Complex algorithms MUST have explanation comments
+- Architecture decisions MUST be recorded in ADRs (Architecture Decision Records)
+- Setup instructions MUST be tested on a clean environment
+
+### Version Control Standards
+
+Git workflow MUST follow these practices:
+- Feature branches follow naming: `###-feature-name`
+- Commits MUST be atomic and have clear messages following conventional commits
+- Main branch MUST always be deployable
+- No force-pushing to shared branches
+
+## Quality Gates
+
+The following gates MUST be passed before code can be merged:
+
+### Pre-Implementation Gate
+- [ ] Feature specification exists with clear user stories
+- [ ] Architecture approach documented and reviewed
+- [ ] Tests written and verified to fail
+- [ ] Constitution compliance verified
+
+### Pre-Merge Gate
+- [ ] All tests passing (contract, integration, unit, E2E as applicable)
+- [ ] Code coverage meets minimum threshold (80% for business logic)
+- [ ] Linting and formatting checks pass
+- [ ] Security scan shows no HIGH or CRITICAL vulnerabilities
+- [ ] Peer review approved
+- [ ] Documentation updated
+
+### Pre-Release Gate
+- [ ] All critical user journeys tested end-to-end
+- [ ] Performance benchmarks met
+- [ ] Accessibility audit passed
+- [ ] Security review completed
+- [ ] Migration guide prepared (if breaking changes)
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices. All team members MUST:
+- Verify compliance during code reviews
+- Raise concerns when principles are violated
+- Propose amendments through documented RFC process
+- Treat "NON-NEGOTIABLE" principles as blocking - violations require explicit exception approval
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+### Amendment Process
+
+Constitution amendments MUST:
+1. Be proposed via written RFC with rationale
+2. Include impact analysis on existing code/processes
+3. Receive approval from majority of team
+4. Include migration plan if changes affect existing practices
+5. Update version following semantic versioning (see below)
+
+### Versioning Policy
+
+Constitution versions follow MAJOR.MINOR.PATCH:
+- **MAJOR**: Principle removed or fundamentally redefined (backward incompatible)
+- **MINOR**: New principle added or existing principle materially expanded
+- **PATCH**: Clarifications, wording improvements, typo fixes
+
+### Compliance Review
+
+Constitution compliance MUST be reviewed:
+- During every pull request (principles I, II, V minimum)
+- During sprint retrospectives (identify systemic violations)
+- During architecture reviews (principles III, IV)
+- Annually for comprehensive governance audit
+
+**Version**: 1.0.0 | **Ratified**: 2025-11-27 | **Last Amended**: 2025-11-27
