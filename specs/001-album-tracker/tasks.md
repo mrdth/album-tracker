@@ -156,19 +156,19 @@ description: "Implementation tasks for Album Tracker feature"
 
 ### Tests for User Story 3 (TDD - Write FIRST)
 
-- [ ] T078 [P] [US3] Contract test for GET /api/artists in backend/tests/integration/api/artists.test.ts (verify statistics in response)
-- [ ] T079 [P] [US3] Unit test for ArtistRepository.list() with computed stats in backend/tests/unit/repositories/ArtistRepository.test.ts
-- [ ] T080 [P] [US3] E2E test for Collection Overview display in e2e/important/collection-view.spec.ts (verify counts, progress bars, navigation)
+- [X] T078 [P] [US3] Contract test for GET /api/artists in backend/tests/integration/api/artists.test.ts (verify statistics in response)
+- [X] T079 [P] [US3] Unit test for ArtistRepository.list() with computed stats in backend/tests/unit/repositories/ArtistRepository.test.ts
+- [X] T080 [P] [US3] E2E test for Collection Overview display in e2e/important/collection-view.spec.ts (verify counts, progress bars, navigation)
 
 ### Implementation for User Story 3
 
-- [ ] T081 [US3] Update ArtistRepository.list() to include computed fields (total_albums, owned_albums, completion_percentage via SQL query)
-- [ ] T082 [P] [US3] Create ArtistSummaryCard component in frontend/src/components/collection/ArtistSummaryCard.vue (artist name, stats, progress bar, click to detail)
-- [ ] T083 [P] [US3] Create CollectionOverview component in frontend/src/components/collection/CollectionOverview.vue (grid of ArtistSummaryCard instances)
-- [ ] T084 [US3] Create CollectionPage in frontend/src/pages/CollectionPage.vue (fetch all artists, display overview)
-- [ ] T085 [US3] Add navigation link to CollectionPage in frontend App.vue navigation bar
-- [ ] T086 [US3] Add sorting options to CollectionOverview (by name, by completion percentage, by owned count)
-- [ ] T087 [US3] Add filter options to CollectionOverview (show all, show incomplete only, show complete only)
+- [X] T081 [US3] Update ArtistRepository.list() to include computed fields (total_albums, owned_albums, completion_percentage via SQL query)
+- [X] T082 [P] [US3] Create ArtistSummaryCard component in frontend/src/components/collection/ArtistSummaryCard.vue (artist name, stats, progress bar, click to detail)
+- [X] T083 [P] [US3] Create CollectionOverview component in frontend/src/components/collection/CollectionOverview.vue (grid of ArtistSummaryCard instances)
+- [X] T084 [US3] Create CollectionPage in frontend/src/pages/CollectionPage.vue (fetch all artists, display overview)
+- [X] T085 [US3] Add navigation link to CollectionPage in frontend App.vue navigation bar
+- [X] T086 [US3] Add sorting options to CollectionOverview (by name, by completion percentage, by owned count)
+- [X] T087 [US3] Add filter options to CollectionOverview (show all, show incomplete only, show complete only)
 
 **Checkpoint**: User Story 3 complete - can view collection overview with statistics
 
