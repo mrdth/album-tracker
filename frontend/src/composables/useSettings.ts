@@ -26,10 +26,9 @@ export function useSettings() {
     error.value = null
 
     try {
-      const response = await api.get('/settings')
-      settings.value = response.data
+      settings.value = await api.getSettings()
     } catch (err: any) {
-      error.value = err.response?.data?.error || 'Failed to fetch settings'
+      error.value = err.message || 'Failed to fetch settings'
       console.error('Error fetching settings:', err)
     } finally {
       loading.value = false
@@ -41,10 +40,9 @@ export function useSettings() {
     error.value = null
 
     try {
-      const response = await api.patch('/settings', updates)
-      settings.value = response.data
+      settings.value = await api.updateSettings(updates)
     } catch (err: any) {
-      error.value = err.response?.data?.error || 'Failed to update settings'
+      error.value = err.message || 'Failed to update settings'
       throw new Error(error.value)
     } finally {
       loading.value = false
@@ -60,6 +58,6 @@ export function useSettings() {
     loading,
     error,
     fetchSettings,
-    updateSettings
+    updateSettings,
   }
 }

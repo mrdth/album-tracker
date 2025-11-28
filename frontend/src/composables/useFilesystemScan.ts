@@ -33,15 +33,15 @@ export function useFilesystemScan() {
         }
       }, 200)
 
-      const response = await api.post('/filesystem/scan', { artist_id: artistId })
-      scanResult.value = response.data
+      const result = await api.scanFilesystem(artistId)
+      scanResult.value = result
 
       clearInterval(progressInterval)
       scanProgress.value = 100
 
-      return response.data
+      return result
     } catch (err: any) {
-      scanError.value = err.response?.data?.error || 'Failed to scan library'
+      scanError.value = err.message || 'Failed to scan library'
       console.error('Error scanning library:', err)
       return null
     } finally {
@@ -61,6 +61,6 @@ export function useFilesystemScan() {
     scanError,
     scanProgress,
     triggerScan,
-    resetScan
+    resetScan,
   }
 }
