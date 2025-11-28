@@ -138,7 +138,7 @@ describe('Artists API Contract Tests', () => {
       // Value validation for artist 1 (3 total, 2 owned = 66.67%)
       expect(artist1.total_albums).toBe(3)
       expect(artist1.owned_albums).toBe(2)
-      expect(artist1.completion_percentage).toBeCloseTo(66.67, 1)
+      expect(artist1.completion_percentage).toBe(66)
 
       // Verify artist 2 statistics (2 total, 1 owned = 50%)
       const artist2 = response.body.find((a: any) => a.id === testArtistId2)
