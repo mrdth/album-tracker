@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useSettings } from '../../composables/useSettings'
 import LoadingSpinner from '../common/LoadingSpinner.vue'
 import ErrorMessage from '../common/ErrorMessage.vue'
@@ -18,7 +18,18 @@ const updateLibraryPath = () => {
   }
 }
 
-// Watch for settings changes
+// Watch for settings changes and update libraryPath
+watch(
+  settings,
+  newSettings => {
+    if (newSettings) {
+      libraryPath.value = newSettings.library_root_path
+    }
+  },
+  { immediate: true }
+)
+
+// Check if path has been changed
 const isPathChanged = computed(() => {
   return settings.value && libraryPath.value !== settings.value.library_root_path
 })
@@ -42,9 +53,6 @@ const handleSave = async () => {
     saving.value = false
   }
 }
-
-// Load settings on mount
-updateLibraryPath()
 </script>
 
 <template>
