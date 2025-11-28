@@ -1,5 +1,29 @@
 {
+  "name": "album-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "lint": "npm run lint -w backend && npm run lint -w frontend",
+    "lint:fix": "npm run lint:fix -w backend && npm run lint:fix -w frontend",
+    "format": "prettier --write \"**/*.{ts,tsx,vue,json,md}\"",
+    "type-check": "npm run type-check -w backend && npm run type-check -w frontend"
+  },
   "devDependencies": {
-    "playwright": "^1.57.0"
+    "concurrently": "^9.1.0",
+    "playwright": "^1.57.0",
+    "prettier": "^3.4.2"
+  },
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0"
   }
 }

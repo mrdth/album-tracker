@@ -41,21 +41,21 @@ description: "Implementation tasks for Album Tracker feature"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 Create SQLite schema in backend/src/db/schema.sql (Artist, Album, Settings, FilesystemCache tables)
-- [ ] T011 Implement database connection wrapper in backend/src/db/connection.ts (better-sqlite3 setup with WAL mode)
-- [ ] T012 [P] Create Settings singleton model in backend/src/models/Settings.ts
-- [ ] T013 [P] Create Settings repository in backend/src/repositories/SettingsRepository.ts
-- [ ] T014 Initialize default Settings row on database creation
-- [ ] T015 [P] Implement path traversal prevention utility in backend/src/utils/pathValidation.ts (safeResolvePath with 5-layer security)
-- [ ] T016 [P] Implement existing MusicBrainzClient wrapper with retry logic in backend/src/services/MusicBrainzService.ts (exponential backoff, 3 retries)
-- [ ] T017 [P] Create Express app scaffolding in backend/src/server.ts (CORS, JSON middleware, error handler)
-- [ ] T018 [P] Implement global error handling middleware in backend/src/api/middleware/errorHandler.ts
-- [ ] T019 [P] Implement request validation middleware in backend/src/api/middleware/validation.ts
-- [ ] T020 [P] Setup Tailwind CSS in frontend (tailwind.config.js, postcss.config.js, main CSS import)
-- [ ] T021 [P] Create Vue Router configuration in frontend/src/router/index.ts (routes for Home, ArtistDetail, Collection, Settings)
-- [ ] T022 [P] Create API client wrapper in frontend/src/services/api.ts (fetch with base URL and error handling)
-- [ ] T023 [P] Create reusable LoadingSpinner component in frontend/src/components/common/LoadingSpinner.vue
-- [ ] T024 [P] Create reusable ErrorMessage component in frontend/src/components/common/ErrorMessage.vue
+- [X] T010 Create SQLite schema in backend/src/db/schema.sql (Artist, Album, Settings, FilesystemCache tables)
+- [X] T011 Implement database connection wrapper in backend/src/db/connection.ts (better-sqlite3 setup with WAL mode)
+- [X] T012 [P] Create Settings singleton model in backend/src/models/Settings.ts
+- [X] T013 [P] Create Settings repository in backend/src/repositories/SettingsRepository.ts
+- [X] T014 Initialize default Settings row on database creation
+- [X] T015 [P] Implement path traversal prevention utility in backend/src/utils/pathValidation.ts (safeResolvePath with 5-layer security)
+- [X] T016 [P] Implement existing MusicBrainzClient wrapper with retry logic in backend/src/services/MusicBrainzService.ts (exponential backoff, 3 retries)
+- [X] T017 [P] Create Express app scaffolding in backend/src/server.ts (CORS, JSON middleware, error handler)
+- [X] T018 [P] Implement global error handling middleware in backend/src/api/middleware/errorHandler.ts
+- [X] T019 [P] Implement request validation middleware in backend/src/api/middleware/validation.ts
+- [X] T020 [P] Setup Tailwind CSS in frontend (tailwind.config.js, postcss.config.js, main CSS import)
+- [X] T021 [P] Create Vue Router configuration in frontend/src/router/index.ts (routes for Home, ArtistDetail, Collection, Settings)
+- [X] T022 [P] Create API client wrapper in frontend/src/services/api.ts (fetch with base URL and error handling)
+- [X] T023 [P] Create reusable LoadingSpinner component in frontend/src/components/common/LoadingSpinner.vue
+- [X] T024 [P] Create reusable ErrorMessage component in frontend/src/components/common/ErrorMessage.vue
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
