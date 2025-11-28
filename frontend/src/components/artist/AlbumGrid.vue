@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import type { Album } from '../../../../shared/types/index.js';
-import AlbumCard from './AlbumCard.vue';
+import type { Album } from '../../../../shared/types/index.js'
+import AlbumCard from './AlbumCard.vue'
 
 interface Props {
-  albums: Album[];
+  albums: Album[]
 }
 
-defineProps<Props>();
+defineProps<Props>()
+
+const emit = defineEmits<{
+  linkFolder: [albumId: number]
+  toggleOwnership: [albumId: number]
+  clearOverride: [albumId: number]
+}>()
 </script>
 
 <template>
@@ -25,6 +31,9 @@ defineProps<Props>();
         v-for="album in albums"
         :key="album.id"
         :album="album"
+        @link-folder="emit('linkFolder', $event)"
+        @toggle-ownership="emit('toggleOwnership', $event)"
+        @clear-override="emit('clearOverride', $event)"
       />
     </div>
 

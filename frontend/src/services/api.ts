@@ -161,6 +161,7 @@ export const api = {
     updates: {
       matched_folder_path?: string | null
       ownership_status?: 'Owned' | 'Missing' | 'Ambiguous'
+      clear_override?: boolean
     }
   ): Promise<Album> {
     return apiRequest<Album>(`/albums/${albumId}`, {
@@ -208,7 +209,8 @@ export const api = {
    * Browse directory tree
    */
   async browseDirectory(path: string = ''): Promise<{
-    currentPath: string
+    current_path: string
+    parent_path: string | null
     directories: Array<{ name: string; path: string }>
   }> {
     return apiRequest(`/filesystem/browse?path=${encodeURIComponent(path)}`)

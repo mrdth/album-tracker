@@ -15,6 +15,7 @@ import { errorHandler, notFoundHandler } from './api/middleware/errorHandler.js'
 import artistsRouter from './api/routes/artists.js'
 import settingsRouter from './api/routes/settings.js'
 import filesystemRouter from './api/routes/filesystem.js'
+import albumsRouter from './api/routes/albums.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -90,8 +91,7 @@ app.get('/api', (req, res) => {
 app.use('/api/artists', artistsRouter)
 app.use('/api/settings', settingsRouter)
 app.use('/api/filesystem', filesystemRouter)
-// TODO: Mount albums router when implemented
-// app.use('/api/albums', albumsRouter);
+app.use('/api/albums', albumsRouter)
 
 // ============================================================================
 // Error Handling

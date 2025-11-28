@@ -7,7 +7,9 @@ import ArtistDetailHeader from '../components/artist/ArtistDetailHeader.vue'
 import AlbumGrid from '../components/artist/AlbumGrid.vue'
 import LoadingSpinner from '../components/common/LoadingSpinner.vue'
 import ErrorMessage from '../components/common/ErrorMessage.vue'
+import DirectoryBrowser from '../components/albums/DirectoryBrowser.vue'
 import { useFilesystemScan } from '../composables/useFilesystemScan'
+import { useDirectoryBrowser } from '../composables/useDirectoryBrowser'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,6 +23,15 @@ const error = ref<string | null>(null)
 
 const { scanning, scanResult, scanError, scanProgress, triggerScan, resetScan } =
   useFilesystemScan()
+
+const {
+  isOpen: directoryBrowserOpen,
+  initialPath,
+  open: openDirectoryBrowser,
+  close: closeDirectoryBrowser,
+} = useDirectoryBrowser()
+
+const currentAlbumId = ref<number | null>(null)
 
 const loadArtist = async () => {
   isLoading.value = true
@@ -57,6 +68,60 @@ const handleScan = async () => {
   if (result) {
     // Reload artist data to get updated ownership status
     await loadArtist()
+  }
+}
+
+const handleLinkFolder = (albumId: number) => {
+  currentAlbumId.value = albumId
+  openDirectoryBrowser('')
+}
+
+const handleFolderSelected = async (folderPath: string) => {
+  if (currentAlbumId.value === null) return
+
+  try {
+    await api.updateAlbum(currentAlbumId.value, {
+      matched_folder_path: folderPath,
+    })
+    // Reload artist data to get updated album
+    await loadArtist()
+  } catch (err) {
+    console.error('Failed to link folder:', err)
+    error.value = 'Failed to link folder to album'
+  } finally {
+    currentAlbumId.value = null
+  }
+}
+
+const handleToggleOwnership = async (albumId: number) => {
+  try {
+    // Find the album to determine new status
+    const album = albums.value.find(a => a.id === albumId)
+    if (!album) return
+
+    const newStatus = album.ownership_status === 'Owned' ? 'Missing' : 'Owned'
+
+    await api.updateAlbum(albumId, {
+      ownership_status: newStatus,
+    })
+    // Reload artist data
+    await loadArtist()
+  } catch (err) {
+    console.error('Failed to toggle ownership:', err)
+    error.value = 'Failed to toggle album ownership'
+  }
+}
+
+const handleClearOverride = async (albumId: number) => {
+  try {
+    await api.updateAlbum(albumId, {
+      clear_override: true,
+    })
+    // Reload artist data
+    await loadArtist()
+  } catch (err) {
+    console.error('Failed to clear override:', err)
+    error.value = 'Failed to clear manual override'
   }
 }
 
@@ -156,8 +221,21 @@ onMounted(() => {
           <h2 class="text-2xl font-semibold text-gray-900">Discography</h2>
         </div>
 
-        <AlbumGrid :albums="albums" />
+        <AlbumGrid
+          :albums="albums"
+          @link-folder="handleLinkFolder"
+          @toggle-ownership="handleToggleOwnership"
+          @clear-override="handleClearOverride"
+        />
       </div>
     </div>
+
+    <!-- Directory Browser Dialog -->
+    <DirectoryBrowser
+      v-if="directoryBrowserOpen"
+      :initial-path="initialPath"
+      @select="handleFolderSelected"
+      @close="closeDirectoryBrowser"
+    />
   </div>
 </template>
