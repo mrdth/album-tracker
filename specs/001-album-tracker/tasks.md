@@ -114,35 +114,35 @@ description: "Implementation tasks for Album Tracker feature"
 
 ### Tests for User Story 2 (TDD - Write FIRST)
 
-- [ ] T052 [P] [US2] Contract test for GET /api/settings in backend/tests/integration/api/settings.test.ts
-- [ ] T053 [P] [US2] Contract test for PATCH /api/settings in backend/tests/integration/api/settings.test.ts (path validation scenarios)
-- [ ] T054 [P] [US2] Contract test for POST /api/filesystem/scan in backend/tests/integration/api/filesystem.test.ts
-- [ ] T055 [P] [US2] Unit test for FilesystemScanner.scan() in backend/tests/unit/services/FilesystemScanner.test.ts (with test fixtures)
-- [ ] T056 [P] [US2] Unit test for AlbumMatcher with Fuse.js in backend/tests/unit/services/AlbumMatcher.test.ts (80% threshold scenarios)
-- [ ] T057 [P] [US2] Integration test for folder name parsing in backend/tests/integration/services/FilesystemScanner.test.ts ([YYYY] Title format)
-- [ ] T058 [P] [US2] E2E test for library configuration in e2e/important/library-scan.spec.ts (configure path, trigger scan, verify results)
-- [ ] T059 [P] [US2] E2E test for invalid path validation in e2e/important/library-scan.spec.ts (nonexistent path, permission denied)
+- [X] T052 [P] [US2] Contract test for GET /api/settings in backend/tests/integration/api/settings.test.ts
+- [X] T053 [P] [US2] Contract test for PATCH /api/settings in backend/tests/integration/api/settings.test.ts (path validation scenarios)
+- [X] T054 [P] [US2] Contract test for POST /api/filesystem/scan in backend/tests/integration/api/filesystem.test.ts
+- [X] T055 [P] [US2] Unit test for FilesystemScanner.scan() in backend/tests/unit/services/FilesystemScanner.test.ts (with test fixtures)
+- [X] T056 [P] [US2] Unit test for AlbumMatcher with Fuse.js in backend/tests/unit/services/AlbumMatcher.test.ts (80% threshold scenarios)
+- [X] T057 [P] [US2] Integration test for folder name parsing in backend/tests/integration/services/FilesystemScanner.test.ts ([YYYY] Title format)
+- [X] T058 [P] [US2] E2E test for library configuration in e2e/important/library-scan.spec.ts (configure path, trigger scan, verify results)
+- [X] T059 [P] [US2] E2E test for invalid path validation in e2e/important/library-scan.spec.ts (nonexistent path, permission denied)
 
 ### Implementation for User Story 2
 
-- [ ] T060 [US2] Create FilesystemCache model in backend/src/models/FilesystemCache.ts (folder_path, parsed_year, parsed_title)
-- [ ] T061 [US2] Create FilesystemCacheRepository in backend/src/repositories/FilesystemCacheRepository.ts (bulkInsert, findByParentPath, clear)
-- [ ] T062 [US2] Implement FilesystemScanner service in backend/src/services/FilesystemScanner.ts (recursive scan, folder parsing, cache population)
-- [ ] T063 [US2] Implement folder name parsing logic in FilesystemScanner (regex for [YYYY] Title, normalization, grouped directories = A =)
-- [ ] T064 [US2] Implement artist folder detection in FilesystemScanner with unit test (naming rules, character normalization, article movement "The Beatles" → "Beatles, The", grouped directories = A =)
-- [ ] T065 [US2] Implement AlbumMatcher service in backend/src/services/AlbumMatcher.ts (Fuse.js integration, year filtering, confidence scoring)
-- [ ] T066 [US2] Configure Fuse.js for 80% similarity threshold in AlbumMatcher (threshold: 0.2, ignoreLocation: true)
-- [ ] T067 [US2] Implement GET /api/settings route in backend/src/api/routes/settings.ts (return singleton settings)
-- [ ] T068 [US2] Implement PATCH /api/settings route in backend/src/api/routes/settings.ts (validate library path with safeResolvePath, check existence/readability)
-- [ ] T069 [US2] Implement POST /api/filesystem/scan route in backend/src/api/routes/filesystem.ts (trigger scan, run matching, update Album ownership)
-- [ ] T070 [US2] Implement scan logic to preserve manual overrides in FilesystemScanner (skip albums where is_manual_override = 1)
-- [ ] T071 [P] [US2] Create LibraryPathConfig component in frontend/src/components/settings/LibraryPathConfig.vue (path input, validation, save button)
-- [ ] T072 [P] [US2] Create SettingsPage in frontend/src/pages/SettingsPage.vue (library path config, similarity threshold display)
-- [ ] T073 [US2] Add "Scan Library" button to ArtistDetailPage (trigger rescan for current artist)
-- [ ] T074 [US2] Create useFilesystemScan composable in frontend/src/composables/useFilesystemScan.ts (scan state, progress tracking)
-- [ ] T075 [US2] Add scan progress indicator to ArtistDetailPage (loading spinner, progress bar, completion message)
-- [ ] T076 [US2] Update AlbumCard component to display matched folder path when ownership_status = Owned
-- [ ] T077 [US2] Add match confidence indicator to AlbumCard (show confidence score for Ambiguous status)
+- [X] T060 [US2] Create FilesystemCache model in backend/src/models/FilesystemCache.ts (folder_path, parsed_year, parsed_title)
+- [X] T061 [US2] Create FilesystemCacheRepository in backend/src/repositories/FilesystemCacheRepository.ts (bulkInsert, findByParentPath, clear)
+- [X] T062 [US2] Implement FilesystemScanner service in backend/src/services/FilesystemScanner.ts (recursive scan, folder parsing, cache population)
+- [X] T063 [US2] Implement folder name parsing logic in FilesystemScanner (regex for [YYYY] Title, normalization, grouped directories = A =)
+- [X] T064 [US2] Implement artist folder detection in FilesystemScanner with unit test (naming rules, character normalization, article movement "The Beatles" → "Beatles, The", grouped directories = A =)
+- [X] T065 [US2] Implement AlbumMatcher service in backend/src/services/AlbumMatcher.ts (Fuse.js integration, year filtering, confidence scoring)
+- [X] T066 [US2] Configure Fuse.js for 80% similarity threshold in AlbumMatcher (threshold: 0.2, ignoreLocation: true)
+- [X] T067 [US2] Implement GET /api/settings route in backend/src/api/routes/settings.ts (return singleton settings)
+- [X] T068 [US2] Implement PATCH /api/settings route in backend/src/api/routes/settings.ts (validate library path with safeResolvePath, check existence/readability)
+- [X] T069 [US2] Implement POST /api/filesystem/scan route in backend/src/api/routes/filesystem.ts (trigger scan, run matching, update Album ownership)
+- [X] T070 [US2] Implement scan logic to preserve manual overrides in FilesystemScanner (skip albums where is_manual_override = 1)
+- [X] T071 [P] [US2] Create LibraryPathConfig component in frontend/src/components/settings/LibraryPathConfig.vue (path input, validation, save button)
+- [X] T072 [P] [US2] Create SettingsPage in frontend/src/pages/SettingsPage.vue (library path config, similarity threshold display)
+- [X] T073 [US2] Add "Scan Library" button to ArtistDetailPage (trigger rescan for current artist)
+- [X] T074 [US2] Create useFilesystemScan composable in frontend/src/composables/useFilesystemScan.ts (scan state, progress tracking)
+- [X] T075 [US2] Add scan progress indicator to ArtistDetailPage (loading spinner, progress bar, completion message)
+- [X] T076 [US2] Update AlbumCard component to display matched folder path when ownership_status = Owned
+- [X] T077 [US2] Add match confidence indicator to AlbumCard (show confidence score for Ambiguous status)
 
 **Checkpoint**: User Story 2 complete - can configure library, scan filesystem, see ownership status
 

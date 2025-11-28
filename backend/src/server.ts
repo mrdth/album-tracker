@@ -13,6 +13,8 @@ import cors from 'cors'
 import { getDatabase } from './db/connection.js'
 import { errorHandler, notFoundHandler } from './api/middleware/errorHandler.js'
 import artistsRouter from './api/routes/artists.js'
+import settingsRouter from './api/routes/settings.js'
+import filesystemRouter from './api/routes/filesystem.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -86,9 +88,9 @@ app.get('/api', (req, res) => {
 
 // Mount route handlers
 app.use('/api/artists', artistsRouter)
-// TODO: Mount remaining routes as they are implemented
-// app.use('/api/settings', settingsRouter);
-// app.use('/api/filesystem', filesystemRouter);
+app.use('/api/settings', settingsRouter)
+app.use('/api/filesystem', filesystemRouter)
+// TODO: Mount albums router when implemented
 // app.use('/api/albums', albumsRouter);
 
 // ============================================================================
@@ -122,4 +124,5 @@ process.on('SIGTERM', () => {
   process.exit(0)
 })
 
+export { app }
 export default app
