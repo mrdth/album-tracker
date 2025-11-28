@@ -1,29 +1,27 @@
 <script setup lang="ts">
-import type { ArtistSearchResult } from '../../../../shared/types/index.js';
+import type { ArtistSearchResult } from '../../../../shared/types/index.js'
 
 interface Props {
-  results: ArtistSearchResult[];
-  importing?: string | null;
+  results: ArtistSearchResult[]
+  importing?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  importing: null
-});
+  importing: null,
+})
 
 const emit = defineEmits<{
-  import: [mbid: string];
-}>();
+  import: [artist: ArtistSearchResult]
+}>()
 
-const handleImport = (mbid: string) => {
-  emit('import', mbid);
-};
+const handleImport = (artist: ArtistSearchResult) => {
+  emit('import', artist)
+}
 </script>
 
 <template>
   <div class="w-full max-w-2xl">
-    <div v-if="results.length === 0" class="text-center py-8 text-gray-500">
-      No results found
-    </div>
+    <div v-if="results.length === 0" class="text-center py-8 text-gray-500">No results found</div>
 
     <div v-else class="space-y-3">
       <div
@@ -46,7 +44,7 @@ const handleImport = (mbid: string) => {
         <button
           class="btn btn-primary"
           :disabled="importing !== null"
-          @click="handleImport(artist.mbid)"
+          @click="handleImport(artist)"
         >
           {{ importing === artist.mbid ? 'Importing...' : 'Import' }}
         </button>

@@ -4,6 +4,7 @@ import ArtistSearchForm from '../components/search/ArtistSearchForm.vue'
 import ArtistSearchResults from '../components/search/ArtistSearchResults.vue'
 import LoadingSpinner from '../components/common/LoadingSpinner.vue'
 import ErrorMessage from '../components/common/ErrorMessage.vue'
+import type { ArtistSearchResult } from '../../../shared/types/index.js'
 
 const {
   searchResults,
@@ -20,8 +21,8 @@ const handleSearch = (searchTerm: string) => {
   searchArtists(searchTerm)
 }
 
-const handleImport = (mbid: string) => {
-  importArtist(mbid)
+const handleImport = (artist: ArtistSearchResult) => {
+  importArtist(artist)
 }
 
 const dismissError = () => {
