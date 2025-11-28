@@ -23,15 +23,15 @@ description: "Implementation tasks for Album Tracker feature"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure (backend/, frontend/, shared/)
-- [ ] T002 Initialize backend Node.js/TypeScript project with Express, better-sqlite3, fuse.js dependencies in backend/package.json
-- [ ] T003 [P] Initialize frontend Vue 3/Vite project with Tailwind CSS, Vue Router dependencies in frontend/package.json
-- [ ] T004 [P] Configure ESLint and Prettier for backend in backend/.eslintrc.js and backend/.prettierrc
-- [ ] T005 [P] Configure ESLint and Prettier for frontend in frontend/.eslintrc.js and frontend/.prettierrc
-- [ ] T006 [P] Configure Vitest for backend testing in backend/vitest.config.ts
-- [ ] T007 [P] Configure Vitest for frontend component testing in frontend/vitest.config.ts
-- [ ] T008 [P] Configure Playwright for E2E testing in playwright.config.ts
-- [ ] T009 Setup shared TypeScript types in shared/types/index.ts (Artist, Album, Settings, FilesystemCacheEntry interfaces)
+- [X] T001 Create project directory structure (backend/, frontend/, shared/)
+- [X] T002 Initialize backend Node.js/TypeScript project with Express, better-sqlite3, fuse.js dependencies in backend/package.json
+- [X] T003 [P] Initialize frontend Vue 3/Vite project with Tailwind CSS, Vue Router dependencies in frontend/package.json
+- [X] T004 [P] Configure ESLint and Prettier for backend in backend/.eslintrc.js and backend/.prettierrc
+- [X] T005 [P] Configure ESLint and Prettier for frontend in frontend/.eslintrc.js and frontend/.prettierrc
+- [X] T006 [P] Configure Vitest for backend testing in backend/vitest.config.ts
+- [X] T007 [P] Configure Vitest for frontend component testing in frontend/vitest.config.ts
+- [X] T008 [P] Configure Playwright for E2E testing in playwright.config.ts
+- [X] T009 Setup shared TypeScript types in shared/types/index.ts (Artist, Album, Settings, FilesystemCacheEntry interfaces)
 
 ---
 
