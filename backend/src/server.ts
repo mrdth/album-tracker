@@ -8,32 +8,35 @@
  * - Database initialization
  */
 
-import express from 'express';
-import cors from 'cors';
-import { getDatabase } from './db/connection.js';
-import { errorHandler, notFoundHandler } from './api/middleware/errorHandler.js';
+import express from 'express'
+import cors from 'cors'
+import { getDatabase } from './db/connection.js'
+import { errorHandler, notFoundHandler } from './api/middleware/errorHandler.js'
+import artistsRouter from './api/routes/artists.js'
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app = express()
+const PORT = process.env.PORT || 3000
 
 // ============================================================================
 // Middleware
 // ============================================================================
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true,
+  })
+)
 
 // JSON body parser
-app.use(express.json());
+app.use(express.json())
 
 // Request logging
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  next();
-});
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`)
+  next()
+})
 
 // ============================================================================
 // Database Initialization
@@ -41,17 +44,17 @@ app.use((req, res, next) => {
 
 // Initialize database connection on startup
 try {
-  const db = getDatabase();
-  console.log('[Server] Database initialized successfully');
+  const db = getDatabase()
+  console.log('[Server] Database initialized successfully')
 
   // Verify Settings table is initialized
-  const settings = db.prepare('SELECT * FROM Settings WHERE id = 1').get();
+  const settings = db.prepare('SELECT * FROM Settings WHERE id = 1').get()
   if (settings) {
-    console.log('[Server] Settings loaded successfully');
+    console.log('[Server] Settings loaded successfully')
   }
 } catch (error) {
-  console.error('[Server] Database initialization failed:', error);
-  process.exit(1);
+  console.error('[Server] Database initialization failed:', error)
+  process.exit(1)
 }
 
 // ============================================================================
@@ -63,9 +66,9 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
+    uptime: process.uptime(),
+  })
+})
 
 // API version endpoint
 app.get('/api', (req, res) => {
@@ -76,13 +79,14 @@ app.get('/api', (req, res) => {
       artists: '/api/artists',
       settings: '/api/settings',
       filesystem: '/api/filesystem',
-      albums: '/api/albums'
-    }
-  });
-});
+      albums: '/api/albums',
+    },
+  })
+})
 
-// TODO: Mount route handlers here as they are implemented
-// app.use('/api/artists', artistsRouter);
+// Mount route handlers
+app.use('/api/artists', artistsRouter)
+// TODO: Mount remaining routes as they are implemented
 // app.use('/api/settings', settingsRouter);
 // app.use('/api/filesystem', filesystemRouter);
 // app.use('/api/albums', albumsRouter);
@@ -92,30 +96,30 @@ app.get('/api', (req, res) => {
 // ============================================================================
 
 // 404 handler for undefined routes
-app.use(notFoundHandler);
+app.use(notFoundHandler)
 
 // Global error handler (must be last)
-app.use(errorHandler);
+app.use(errorHandler)
 
 // ============================================================================
 // Server Startup
 // ============================================================================
 
 app.listen(PORT, () => {
-  console.log(`[Server] Album Tracker API running on port ${PORT}`);
-  console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[Server] CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-});
+  console.log(`[Server] Album Tracker API running on port ${PORT}`)
+  console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`[Server] CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`)
+})
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n[Server] Shutting down gracefully...');
-  process.exit(0);
-});
+  console.log('\n[Server] Shutting down gracefully...')
+  process.exit(0)
+})
 
 process.on('SIGTERM', () => {
-  console.log('\n[Server] Shutting down gracefully...');
-  process.exit(0);
-});
+  console.log('\n[Server] Shutting down gracefully...')
+  process.exit(0)
+})
 
-export default app;
+export default app
