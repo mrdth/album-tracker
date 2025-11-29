@@ -83,9 +83,6 @@ describe('FilesystemScanner - Manual Override Persistence', () => {
   })
 
   afterAll(async () => {
-    const db = getDatabase()
-    db.close()
-
     // Cleanup test directories
     await fs.rm(testLibraryPath, { recursive: true, force: true })
   })
@@ -293,5 +290,197 @@ describe('FilesystemScanner - Manual Override Persistence', () => {
     // Cleanup
     await fs.rm(autoDetectPath, { recursive: true, force: true })
     await fs.rm(customPath, { recursive: true, force: true })
+  })
+})
+
+describe('FilesystemScanner - Rescan Behavior', () => {
+  let testArtistId: number
+  let testAlbumId1: number
+  let testAlbumId2: number
+  const testLibraryPath = '/tmp/test-library-rescan'
+
+  beforeAll(async () => {
+    // Create test directory structure
+    await fs.mkdir(testLibraryPath, { recursive: true })
+    await fs.mkdir(`${testLibraryPath}/TestArtist`, { recursive: true })
+    await fs.mkdir(`${testLibraryPath}/TestArtist/[2020] Album One`, { recursive: true })
+    await fs.mkdir(`${testLibraryPath}/TestArtist/[2021] Album Two`, { recursive: true })
+  })
+
+  beforeEach(() => {
+    const db = getDatabase()
+
+    // Update settings with test library path
+    db.prepare('UPDATE Settings SET library_root_path = ? WHERE id = 1').run(testLibraryPath)
+
+    // Clean up any existing test data
+    db.prepare('DELETE FROM Album WHERE artist_id IN (SELECT id FROM Artist WHERE mbid = ?)').run(
+      '99999999-1234-5678-90ab-cdef12346000'
+    )
+    db.prepare('DELETE FROM Artist WHERE mbid = ?').run('99999999-1234-5678-90ab-cdef12346000')
+    db.prepare('DELETE FROM FilesystemCache').run()
+
+    // Create test artist
+    const result = db
+      .prepare(
+        `
+      INSERT INTO Artist (mbid, name, sort_name)
+      VALUES ('99999999-1234-5678-90ab-cdef12346000', 'TestArtist', 'TestArtist')
+    `
+      )
+      .run()
+
+    testArtistId = result.lastInsertRowid as number
+
+    // Create test albums
+    const album1 = db
+      .prepare(
+        `
+      INSERT INTO Album (artist_id, mbid, title, release_year, ownership_status)
+      VALUES (?, '99999999-1234-5678-90ab-000000000011', 'Album One', 2020, 'Missing')
+    `
+      )
+      .run(testArtistId)
+
+    testAlbumId1 = album1.lastInsertRowid as number
+
+    const album2 = db
+      .prepare(
+        `
+      INSERT INTO Album (artist_id, mbid, title, release_year, ownership_status)
+      VALUES (?, '99999999-1234-5678-90ab-000000000012', 'Album Two', 2021, 'Missing')
+    `
+      )
+      .run(testArtistId)
+
+    testAlbumId2 = album2.lastInsertRowid as number
+  })
+
+  afterEach(() => {
+    try {
+      const db = getDatabase()
+      db.prepare('DELETE FROM Album WHERE artist_id = ?').run(testArtistId)
+      db.prepare('DELETE FROM Artist WHERE id = ?').run(testArtistId)
+      db.prepare('DELETE FROM FilesystemCache').run()
+    } catch (error) {
+      // Database may be closed already
+      console.warn('Could not clean up database in afterEach:', error)
+    }
+  })
+
+  afterAll(async () => {
+    // Cleanup test directory
+    await fs.rm(testLibraryPath, { recursive: true, force: true })
+  })
+
+  it('should clear old cache and detect new folders on rescan', async () => {
+    const db = getDatabase()
+    const scanner = new FilesystemScanner(testLibraryPath)
+    const FilesystemCacheRepository = (
+      await import('../../../src/repositories/FilesystemCacheRepository.js')
+    ).FilesystemCacheRepository
+    const cacheRepo = new FilesystemCacheRepository()
+
+    // Initial scan
+    const entries1 = await scanner.scanArtistFolder(`${testLibraryPath}/TestArtist`)
+    expect(entries1.length).toBe(2)
+    cacheRepo.bulkInsert(entries1)
+
+    // Verify cache has 2 entries
+    const cachedBefore = cacheRepo.findByParentPath(`${testLibraryPath}/TestArtist`)
+    expect(cachedBefore.length).toBe(2)
+
+    // Add a new album folder
+    await fs.mkdir(`${testLibraryPath}/TestArtist/[2022] Album Three`, { recursive: true })
+
+    // Rescan (should clear old cache and detect new folder)
+    cacheRepo.clearByPattern(`${testLibraryPath}/TestArtist%`)
+    const entries2 = await scanner.scanArtistFolder(`${testLibraryPath}/TestArtist`)
+    expect(entries2.length).toBe(3)
+    cacheRepo.bulkInsert(entries2)
+
+    // Verify cache now has 3 entries
+    const cachedAfter = cacheRepo.findByParentPath(`${testLibraryPath}/TestArtist`)
+    expect(cachedAfter.length).toBe(3)
+
+    // Verify the new folder is in the cache
+    const newFolder = cachedAfter.find(entry => entry.folder_name === '[2022] Album Three')
+    expect(newFolder).toBeDefined()
+
+    // Cleanup
+    await fs.rm(`${testLibraryPath}/TestArtist/[2022] Album Three`, {
+      recursive: true,
+      force: true,
+    })
+  })
+
+  it('should update ownership status when folders are added or removed', async () => {
+    const db = getDatabase()
+    const scanner = new FilesystemScanner(testLibraryPath)
+    const matcher = new AlbumMatcher()
+
+    // Initial scan - both albums should match
+    const entries1 = await scanner.scanArtistFolder(`${testLibraryPath}/TestArtist`)
+    const albums = AlbumRepository.findByArtistId(testArtistId)
+    const matchResults1 = matcher.matchAlbums(albums, entries1)
+
+    // Update ownership based on initial matches
+    for (const album of albums) {
+      const match = matchResults1.get(album.mbid)
+      if (match && match.status === 'Owned') {
+        AlbumRepository.updateOwnership(album.id, {
+          ownership_status: 'Owned',
+          matched_folder_path: match.folder_path || null,
+          match_confidence: match.confidence,
+        })
+      }
+    }
+
+    // Verify both albums are Owned
+    let album1 = AlbumRepository.findById(testAlbumId1)
+    let album2 = AlbumRepository.findById(testAlbumId2)
+    expect(album1?.ownership_status).toBe('Owned')
+    expect(album2?.ownership_status).toBe('Owned')
+
+    // Remove one album folder
+    await fs.rm(`${testLibraryPath}/TestArtist/[2021] Album Two`, { recursive: true, force: true })
+
+    // Rescan
+    const entries2 = await scanner.scanArtistFolder(`${testLibraryPath}/TestArtist`)
+    const matchResults2 = matcher.matchAlbums(albums, entries2)
+
+    // Update ownership based on rescan matches
+    for (const album of albums) {
+      // Skip manual overrides
+      if (album.is_manual_override) {
+        continue
+      }
+
+      const match = matchResults2.get(album.mbid)
+      if (match && match.status === 'Owned') {
+        AlbumRepository.updateOwnership(album.id, {
+          ownership_status: 'Owned',
+          matched_folder_path: match.folder_path || null,
+          match_confidence: match.confidence,
+        })
+      } else {
+        // No match found - mark as Missing
+        AlbumRepository.updateOwnership(album.id, {
+          ownership_status: 'Missing',
+          matched_folder_path: null,
+          match_confidence: 0,
+        })
+      }
+    }
+
+    // Verify Album One is still Owned, Album Two is now Missing
+    album1 = AlbumRepository.findById(testAlbumId1)
+    album2 = AlbumRepository.findById(testAlbumId2)
+    expect(album1?.ownership_status).toBe('Owned')
+    expect(album2?.ownership_status).toBe('Missing')
+    expect(album2?.matched_folder_path).toBeNull()
+
+    // Restore the folder for cleanup
+    await fs.mkdir(`${testLibraryPath}/TestArtist/[2021] Album Two`, { recursive: true })
   })
 })

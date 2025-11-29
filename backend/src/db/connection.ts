@@ -43,6 +43,9 @@ export function getDatabase(): Database.Database {
   // Initialize schema
   initializeSchema(db)
 
+  // Run migrations
+  runMigrations(db)
+
   // Initialize default settings if needed
   initializeDefaultSettings(db)
 
@@ -55,6 +58,20 @@ export function getDatabase(): Database.Database {
 function initializeSchema(database: Database.Database): void {
   const schema = readFileSync(SCHEMA_PATH, 'utf-8')
   database.exec(schema)
+}
+
+/**
+ * Run database migrations for schema updates
+ */
+function runMigrations(database: Database.Database): void {
+  // Migration: Add last_scan_at column to Settings table if it doesn't exist
+  const columns = database.pragma('table_info(Settings)') as Array<{ name: string }>
+  const hasLastScanAt = columns.some(col => col.name === 'last_scan_at')
+
+  if (!hasLastScanAt) {
+    database.exec('ALTER TABLE Settings ADD COLUMN last_scan_at TEXT')
+    console.log('[DB] Migration: Added last_scan_at column to Settings table')
+  }
 }
 
 /**

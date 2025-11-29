@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS Settings (
   similarity_threshold REAL NOT NULL DEFAULT 0.80,
   api_rate_limit_ms INTEGER NOT NULL DEFAULT 1000,
   max_api_retries INTEGER NOT NULL DEFAULT 3,
+  last_scan_at TEXT,
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 
   CONSTRAINT chk_similarity_threshold CHECK (similarity_threshold BETWEEN 0 AND 1),

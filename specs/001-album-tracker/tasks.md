@@ -238,18 +238,18 @@ description: "Implementation tasks for Album Tracker feature"
 
 ### Tests for User Story 6 (TDD - Write FIRST)
 
-- [ ] T112 [P] [US6] Integration test for cache refresh in backend/tests/integration/services/FilesystemScanner.test.ts (clear old cache, detect new folders)
-- [ ] T113 [P] [US6] Integration test for ownership updates on rescan in backend/tests/integration/services/FilesystemScanner.test.ts (new Owned, removed → Missing)
-- [ ] T114 [P] [US6] E2E test for rescan flow in e2e/important/rescan.spec.ts (initial scan, modify fixtures, rescan, verify updates)
+- [X] T112 [P] [US6] Integration test for cache refresh in backend/tests/integration/services/FilesystemScanner.test.ts (clear old cache, detect new folders)
+- [X] T113 [P] [US6] Integration test for ownership updates on rescan in backend/tests/integration/services/FilesystemScanner.test.ts (new Owned, removed → Missing)
+- [X] T114 [P] [US6] E2E test for rescan flow in e2e/important/rescan.spec.ts (initial scan, modify fixtures, rescan, verify updates)
 
 ### Implementation for User Story 6
 
-- [ ] T115 [US6] Implement cache clearing in FilesystemScanner.scan() (delete old cache for artist before rescanning)
-- [ ] T116 [US6] Implement ownership status updates on rescan (automatic matches: update to Missing if folder removed, update to Owned if new match)
-- [ ] T117 [US6] Add rescan timestamp tracking to Settings (last_scan_at field)
-- [ ] T118 [US6] Display last scan timestamp in ArtistDetailPage
-- [ ] T119 [US6] Add confirmation dialog to "Rescan" button (warn about potential ownership changes)
-- [ ] T120 [US6] Add rescan result summary (X new albums found, Y albums removed, Z ownership changes)
+- [X] T115 [US6] Implement cache clearing in FilesystemScanner.scan() (delete old cache for artist before rescanning)
+- [X] T116 [US6] Implement ownership status updates on rescan (automatic matches: update to Missing if folder removed, update to Owned if new match)
+- [X] T117 [US6] Add rescan timestamp tracking to Settings (last_scan_at field)
+- [X] T118 [US6] Display last scan timestamp in ArtistDetailPage
+- [X] T119 [US6] Add confirmation dialog to "Rescan" button (warn about potential ownership changes)
+- [X] T120 [US6] Add rescan result summary (X new albums found, Y albums removed, Z ownership changes)
 
 **Checkpoint**: User Story 6 complete - can rescan and detect library changes
 

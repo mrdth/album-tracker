@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api, { ApiError } from '../services/api.js'
-import type { Artist, Album } from '../../../shared/types/index.js'
+import type { Artist, Album, Settings } from '../../../shared/types/index.js'
 import ArtistDetailHeader from '../components/artist/ArtistDetailHeader.vue'
 import AlbumGrid from '../components/artist/AlbumGrid.vue'
 import LoadingSpinner from '../components/common/LoadingSpinner.vue'
@@ -18,6 +18,7 @@ const artistId = parseInt(route.params.artistId as string, 10)
 
 const artist = ref<Artist | null>(null)
 const albums = ref<Album[]>([])
+const settings = ref<Settings | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
@@ -57,17 +58,48 @@ const loadArtist = async () => {
   }
 }
 
+const loadSettings = async () => {
+  try {
+    settings.value = await api.getSettings()
+  } catch (err) {
+    console.error('Failed to load settings:', err)
+  }
+}
+
+const lastScanTime = computed(() => {
+  if (!settings.value?.last_scan_at) {
+    return 'Never scanned'
+  }
+  const scanDate = new Date(settings.value.last_scan_at)
+  return scanDate.toLocaleString()
+})
+
 const goBack = () => {
   router.push('/')
 }
 
 const handleScan = async () => {
+  // Show confirmation dialog if already scanned before
+  if (settings.value?.last_scan_at) {
+    const confirmed = confirm(
+      'Rescanning will update album ownership status based on current filesystem state. ' +
+        'Albums with folders that have been removed will be marked as Missing. ' +
+        'Manual overrides will be preserved. Continue?'
+    )
+
+    if (!confirmed) {
+      return
+    }
+  }
+
   resetScan()
   const result = await triggerScan(artistId)
 
   if (result) {
     // Reload artist data to get updated ownership status
     await loadArtist()
+    // Reload settings to get updated last_scan_at timestamp
+    await loadSettings()
   }
 }
 
@@ -133,6 +165,7 @@ onMounted(() => {
   }
 
   loadArtist()
+  loadSettings()
 })
 </script>
 
@@ -171,6 +204,9 @@ onMounted(() => {
               <h3 class="text-lg font-semibold text-gray-900">Library Scan</h3>
               <p class="text-sm text-gray-600">
                 Scan your music library to match albums with filesystem folders
+              </p>
+              <p v-if="settings" class="text-xs text-gray-500 mt-1" data-testid="scan-info">
+                Last scanned: {{ lastScanTime }}
               </p>
             </div>
             <button

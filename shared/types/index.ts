@@ -41,6 +41,7 @@ export interface Settings {
   similarity_threshold: number; // 0.0-1.0
   api_rate_limit_ms: number;
   max_api_retries: number;
+  last_scan_at: string | null; // ISO 8601
   updated_at: string; // ISO 8601
 }
 

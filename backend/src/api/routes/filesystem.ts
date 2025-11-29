@@ -115,26 +115,36 @@ router.post('/scan', async (req: Request, res: Response) => {
       }
 
       const match = matchResults.get(album.mbid)
-      if (!match) {
-        continue
-      }
+      if (match) {
+        // Match found - update to Owned or Missing based on match
+        AlbumRepository.updateOwnership(album.id, {
+          ownership_status: match.status,
+          matched_folder_path: match.folder_path || null,
+          match_confidence: match.confidence,
+        })
 
-      AlbumRepository.updateOwnership(album.id, {
-        ownership_status: match.status,
-        matched_folder_path: match.folder_path || null,
-        match_confidence: match.confidence,
-      })
-
-      if (match.status === 'Owned') {
-        matchedCount++
+        if (match.status === 'Owned') {
+          matchedCount++
+        }
+      } else {
+        // No match found - mark as Missing (folder may have been removed)
+        AlbumRepository.updateOwnership(album.id, {
+          ownership_status: 'Missing',
+          matched_folder_path: null,
+          match_confidence: 0,
+        })
       }
     }
+
+    // Update last scan timestamp
+    const scanTimestamp = new Date().toISOString()
+    SettingsRepository.updateLastScanAt(scanTimestamp)
 
     res.json({
       artist_id,
       scanned_folders: folderEntries.length,
       matched_albums: matchedCount,
-      scan_completed_at: new Date().toISOString(),
+      scan_completed_at: scanTimestamp,
     })
   } catch (error) {
     console.error('Error during filesystem scan:', error)
