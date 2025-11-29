@@ -182,24 +182,24 @@ description: "Implementation tasks for Album Tracker feature"
 
 ### Tests for User Story 4 (TDD - Write FIRST)
 
-- [ ] T088 [P] [US4] Contract test for PATCH /api/albums/:albumId in backend/tests/integration/api/albums.test.ts (manual override scenarios)
-- [ ] T089 [P] [US4] Integration test for manual override persistence in backend/tests/integration/services/FilesystemScanner.test.ts (rescan doesn't override manual)
-- [ ] T090 [P] [US4] E2E test for manual folder selection in e2e/important/manual-overrides.spec.ts (directory browser, folder selection, persistence)
+- [X] T088 [P] [US4] Contract test for PATCH /api/albums/:albumId in backend/tests/integration/api/albums.test.ts (manual override scenarios)
+- [X] T089 [P] [US4] Integration test for manual override persistence in backend/tests/integration/services/FilesystemScanner.test.ts (rescan doesn't override manual)
+- [X] T090 [P] [US4] E2E test for manual folder selection in e2e/important/manual-overrides.spec.ts (directory browser, folder selection, persistence)
 
 ### Implementation for User Story 4
 
-- [ ] T091 [US4] Implement PATCH /api/albums/:albumId route in backend/src/api/routes/albums.ts (update matched_folder_path, set is_manual_override = 1)
-- [ ] T092 [US4] Add validation to PATCH /api/albums/:albumId (validate folder path with safeResolvePath, set ownership to Owned if path provided)
-- [ ] T093 [US4] Implement ownership toggle in PATCH /api/albums/:albumId (allow manual Owned/Missing toggle, set is_manual_override = 1)
-- [ ] T094 [US4] Implement GET /api/filesystem/browse route in backend/src/api/routes/filesystem.ts (server-side directory tree with path traversal prevention)
-- [ ] T095 [US4] Add parent_path calculation to directory browser (enable navigation up)
-- [ ] T096 [P] [US4] Create DirectoryBrowser component in frontend/src/components/filesystem/DirectoryBrowser.vue (tree view, navigation, folder selection)
-- [ ] T097 [P] [US4] Create useDirectoryBrowser composable in frontend/src/composables/useDirectoryBrowser.ts (navigation state, API calls)
-- [ ] T098 [US4] Add "Link Folder" button to AlbumCard component (opens DirectoryBrowser modal)
-- [ ] T099 [US4] Add "Toggle Ownership" button to AlbumCard component (manual Owned/Missing toggle)
-- [ ] T100 [US4] Add "Clear Override" button to AlbumCard for manually-linked albums
-- [ ] T101 [US4] Add manual override indicator to AlbumCard (badge showing "Manual" when is_manual_override = true)
-- [ ] T102 [US4] Implement keyboard navigation for DirectoryBrowser (Arrow keys, Enter, Escape)
+- [X] T091 [US4] Implement PATCH /api/albums/:albumId route in backend/src/api/routes/albums.ts (update matched_folder_path, set is_manual_override = 1)
+- [X] T092 [US4] Add validation to PATCH /api/albums/:albumId (validate folder path with safeResolvePath, set ownership to Owned if path provided)
+- [X] T093 [US4] Implement ownership toggle in PATCH /api/albums/:albumId (allow manual Owned/Missing toggle, set is_manual_override = 1)
+- [X] T094 [US4] Implement GET /api/filesystem/browse route in backend/src/api/routes/filesystem.ts (server-side directory tree with path traversal prevention)
+- [X] T095 [US4] Add parent_path calculation to directory browser (enable navigation up)
+- [X] T096 [P] [US4] Create DirectoryBrowser component in frontend/src/components/filesystem/DirectoryBrowser.vue (tree view, navigation, folder selection)
+- [X] T097 [P] [US4] Create useDirectoryBrowser composable in frontend/src/composables/useDirectoryBrowser.ts (navigation state, API calls)
+- [X] T098 [US4] Add "Link Folder" button to AlbumCard component (opens DirectoryBrowser modal)
+- [X] T099 [US4] Add "Toggle Ownership" button to AlbumCard component (manual Owned/Missing toggle)
+- [X] T100 [US4] Add "Clear Override" button to AlbumCard for manually-linked albums
+- [X] T101 [US4] Add manual override indicator to AlbumCard (badge showing "Manual" when is_manual_override = true)
+- [X] T102 [US4] Implement keyboard navigation for DirectoryBrowser (Arrow keys, Enter, Escape)
 
 **Checkpoint**: User Story 4 complete - can manually override album ownership and folder links
 

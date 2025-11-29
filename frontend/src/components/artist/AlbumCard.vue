@@ -105,7 +105,7 @@ function handleClearOverride() {
 
       <!-- Toggle Ownership button -->
       <button
-        v-if="album.ownership_status !== 'Owned'"
+        v-if="album.ownership_status !== 'Owned' && album.matched_folder_path"
         type="button"
         data-testid="toggle-ownership-button"
         class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
