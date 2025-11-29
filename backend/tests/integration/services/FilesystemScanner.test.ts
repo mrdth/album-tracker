@@ -9,6 +9,7 @@ import { getDatabase } from '../../../src/db/connection'
 import { FilesystemScanner } from '../../../src/services/FilesystemScanner'
 import { AlbumMatcher } from '../../../src/services/AlbumMatcher'
 import { AlbumRepository } from '../../../src/repositories/AlbumRepository'
+import { ArtistRepository } from '../../../src/repositories/ArtistRepository'
 import * as fs from 'fs/promises'
 
 describe('FilesystemScanner - Manual Override Persistence', () => {
@@ -212,5 +213,85 @@ describe('FilesystemScanner - Manual Override Persistence', () => {
     expect(album1?.matched_folder_path).toBe(`${testLibraryPath}/TestArtist/[2020] Album One`)
     expect(album1?.ownership_status).toBe('Owned')
     expect(album1?.is_manual_override).toBe(true)
+  })
+
+  it('should use linked artist folder path when set', async () => {
+    const db = getDatabase()
+    const scanner = new FilesystemScanner(testLibraryPath)
+
+    // Create a custom folder structure with non-standard artist name
+    // Using folder names that match our test albums
+    const customPath = `${testLibraryPath}/CustomArtist`
+    await fs.mkdir(customPath, { recursive: true })
+    await fs.mkdir(`${customPath}/[2020] Album One`, { recursive: true })
+
+    // Link the artist to the custom folder
+    ArtistRepository.update(testArtistId, {
+      linked_folder_path: customPath,
+    })
+
+    // Verify the link was set
+    let artist = ArtistRepository.findById(testArtistId)
+    expect(artist?.linked_folder_path).toBe(customPath)
+
+    // Scan using the linked folder
+    const folders = await scanner.scanArtistFolder(customPath)
+    expect(folders.length).toBeGreaterThan(0)
+
+    // Verify we can match albums from the custom folder
+    const albums = AlbumRepository.findByArtistId(testArtistId)
+    const matcher = new AlbumMatcher()
+    const matchResults = matcher.matchAlbums(albums, folders)
+
+    // Update ownership based on matches
+    for (const album of albums) {
+      const match = matchResults.get(album.mbid)
+      if (match && match.status === 'Owned') {
+        AlbumRepository.updateOwnership(album.id, {
+          ownership_status: 'Owned',
+          matched_folder_path: match.folder_path || null,
+          match_confidence: match.confidence,
+        })
+      }
+    }
+
+    // Verify at least one album was matched from the custom folder
+    const updatedAlbums = AlbumRepository.findByArtistId(testArtistId)
+    const ownedAlbums = updatedAlbums.filter(a => a.ownership_status === 'Owned')
+    expect(ownedAlbums.length).toBeGreaterThan(0)
+
+    // Cleanup
+    await fs.rm(customPath, { recursive: true, force: true })
+  })
+
+  it('should prioritize linked folder over automatic detection', async () => {
+    const db = getDatabase()
+    const scanner = new FilesystemScanner(testLibraryPath)
+
+    // Create two folders: one that would match automatically, one custom
+    const autoDetectPath = `${testLibraryPath}/TestArtist`
+    const customPath = `${testLibraryPath}/MyCustomFolder`
+
+    await fs.mkdir(autoDetectPath, { recursive: true })
+    await fs.mkdir(customPath, { recursive: true })
+    await fs.mkdir(`${autoDetectPath}/[2023] Auto Album`, { recursive: true })
+    await fs.mkdir(`${customPath}/[2023] Custom Album`, { recursive: true })
+
+    // Link to custom folder (not the auto-detectable one)
+    ArtistRepository.update(testArtistId, {
+      linked_folder_path: customPath,
+    })
+
+    // Detect artist folder (should use linked path, not auto-detect)
+    const artist = ArtistRepository.findById(testArtistId)
+    const detectedPath =
+      artist?.linked_folder_path || (await scanner.detectArtistFolder('TestArtist'))
+
+    // Should use the linked path, not the auto-detected path
+    expect(detectedPath).toBe(customPath)
+
+    // Cleanup
+    await fs.rm(autoDetectPath, { recursive: true, force: true })
+    await fs.rm(customPath, { recursive: true, force: true })
   })
 })

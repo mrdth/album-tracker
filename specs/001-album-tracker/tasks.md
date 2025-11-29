@@ -213,18 +213,18 @@ description: "Implementation tasks for Album Tracker feature"
 
 ### Tests for User Story 5 (TDD - Write FIRST)
 
-- [ ] T103 [P] [US5] Contract test for PATCH /api/artists/:artistId in backend/tests/integration/api/artists.test.ts (linked_folder_path scenarios)
-- [ ] T104 [P] [US5] Integration test for linked artist folder in backend/tests/integration/services/FilesystemScanner.test.ts (scan uses linked folder)
-- [ ] T105 [P] [US5] E2E test for artist folder linking in e2e/important/artist-folder-link.spec.ts (link folder, scan, verify detection)
+- [X] T103 [P] [US5] Contract test for PATCH /api/artists/:artistId in backend/tests/integration/api/artists.test.ts (linked_folder_path scenarios)
+- [X] T104 [P] [US5] Integration test for linked artist folder in backend/tests/integration/services/FilesystemScanner.test.ts (scan uses linked folder)
+- [X] T105 [P] [US5] E2E test for artist folder linking in e2e/important/artist-folder-link.spec.ts (link folder, scan, verify detection)
 
 ### Implementation for User Story 5
 
-- [ ] T106 [US5] Implement PATCH /api/artists/:artistId route in backend/src/api/routes/artists.ts (update linked_folder_path with validation)
-- [ ] T107 [US5] Update FilesystemScanner to prioritize linked_folder_path over automatic detection
-- [ ] T108 [US5] Add "Clear Link" functionality to PATCH /api/artists/:artistId (set linked_folder_path = null, revert to automatic)
-- [ ] T109 [US5] Add "Link Artist Folder" button to ArtistDetailHeader component (opens DirectoryBrowser modal)
-- [ ] T110 [US5] Display linked artist folder path in ArtistDetailHeader when set
-- [ ] T111 [US5] Add "Clear Artist Folder Link" button to ArtistDetailHeader when linked_folder_path is set
+- [X] T106 [US5] Implement PATCH /api/artists/:artistId route in backend/src/api/routes/artists.ts (update linked_folder_path with validation)
+- [X] T107 [US5] Update FilesystemScanner to prioritize linked_folder_path over automatic detection
+- [X] T108 [US5] Add "Clear Link" functionality to PATCH /api/artists/:artistId (set linked_folder_path = null, revert to automatic)
+- [X] T109 [US5] Add "Link Artist Folder" button to ArtistDetailHeader component (opens DirectoryBrowser modal)
+- [X] T110 [US5] Display linked artist folder path in ArtistDetailHeader when set
+- [X] T111 [US5] Add "Clear Artist Folder Link" button to ArtistDetailHeader when linked_folder_path is set
 
 **Checkpoint**: User Story 5 complete - can manually link artist folders
 

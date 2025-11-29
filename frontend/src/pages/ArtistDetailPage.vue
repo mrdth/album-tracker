@@ -162,7 +162,7 @@ onMounted(() => {
 
       <!-- Artist Detail -->
       <div v-else-if="artist">
-        <ArtistDetailHeader :artist="artist" />
+        <ArtistDetailHeader :artist="artist" @update="loadArtist" />
 
         <!-- Scan Controls -->
         <div class="mb-6 p-4 bg-white rounded-lg shadow">

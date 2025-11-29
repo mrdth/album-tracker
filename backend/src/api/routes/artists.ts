@@ -7,6 +7,7 @@
 import { Router } from 'express'
 import { ArtistRepository } from '../../repositories/ArtistRepository.js'
 import { AlbumRepository } from '../../repositories/AlbumRepository.js'
+import { SettingsRepository } from '../../repositories/SettingsRepository.js'
 import { musicBrainzService } from '../../services/MusicBrainzService.js'
 import { AlbumModel } from '../../models/Album.js'
 import { asyncHandler, createApiError } from '../middleware/errorHandler.js'
@@ -16,6 +17,7 @@ import {
   validateParams,
   ValidationPatterns,
 } from '../middleware/validation.js'
+import { safeResolvePath } from '../../utils/pathValidation.js'
 
 const router = Router()
 
@@ -201,7 +203,36 @@ router.patch(
     const updates: any = {}
 
     if (req.body.linked_folder_path !== undefined) {
-      updates.linked_folder_path = req.body.linked_folder_path
+      const folderPath = req.body.linked_folder_path
+
+      // Validate path if provided (null is allowed to clear the path)
+      if (folderPath !== null) {
+        // Get library root from settings
+        const settings = SettingsRepository.get()
+        const libraryRoot = settings.library_root_path
+
+        if (!libraryRoot) {
+          throw createApiError('Library root path not configured', 400, 'LIBRARY_NOT_CONFIGURED')
+        }
+
+        // Validate path is within library root (path traversal prevention)
+        const safePath = safeResolvePath(libraryRoot, folderPath)
+
+        if (!safePath) {
+          throw createApiError('Invalid path: must be within library root', 400, 'INVALID_PATH')
+        }
+
+        // Store the validated absolute path
+        updates.linked_folder_path = safePath
+      } else {
+        // Clear the linked folder path
+        updates.linked_folder_path = null
+      }
+    }
+
+    // Check if there are any valid updates
+    if (Object.keys(updates).length === 0) {
+      throw createApiError('No valid fields provided for update', 400, 'NO_VALID_FIELDS')
     }
 
     const updatedArtist = ArtistRepository.update(artistId, updates)

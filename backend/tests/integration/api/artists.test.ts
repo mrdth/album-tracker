@@ -13,23 +13,11 @@ describe('Artists API Contract Tests', () => {
   let testArtistId1: number
   let testArtistId2: number
 
-  beforeAll(async () => {
-    const db = getDatabase()
-
-    // Ensure Settings table has default row
-    const settings = db.prepare('SELECT * FROM Settings WHERE id = 1').get()
-    if (!settings) {
-      db.prepare(
-        `
-        INSERT INTO Settings (id, library_root_path, similarity_threshold, api_rate_limit_ms, max_api_retries)
-        VALUES (1, '/tmp/test-library', 0.80, 1000, 3)
-      `
-      ).run()
-    }
-  })
-
   beforeEach(() => {
     const db = getDatabase()
+
+    // Update settings to use test library path
+    db.prepare('UPDATE Settings SET library_root_path = ? WHERE id = 1').run('/tmp/test-library')
 
     // Clean up any existing test data first
     db.prepare(
@@ -193,6 +181,79 @@ describe('Artists API Contract Tests', () => {
 
       // Cleanup
       db.prepare('DELETE FROM Artist WHERE id = ?').run(emptyArtistId)
+    })
+  })
+
+  describe('PATCH /api/artists/:artistId', () => {
+    it('should link artist folder path', async () => {
+      const response = await request(app)
+        .patch(`/api/artists/${testArtistId1}`)
+        .send({ linked_folder_path: 'TestArtist' })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body).toHaveProperty('id', testArtistId1)
+      expect(response.body).toHaveProperty('linked_folder_path', '/tmp/test-library/TestArtist')
+    })
+
+    it('should clear artist folder link when set to null', async () => {
+      // First link a folder
+      await request(app)
+        .patch(`/api/artists/${testArtistId1}`)
+        .send({ linked_folder_path: 'TestArtist' })
+        .expect(200)
+
+      // Then clear it
+      const response = await request(app)
+        .patch(`/api/artists/${testArtistId1}`)
+        .send({ linked_folder_path: null })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body).toHaveProperty('linked_folder_path', null)
+    })
+
+    it('should reject invalid folder path', async () => {
+      const response = await request(app)
+        .patch(`/api/artists/${testArtistId1}`)
+        .send({ linked_folder_path: '/invalid/path' })
+        .expect('Content-Type', /json/)
+        .expect(400)
+
+      expect(response.body).toHaveProperty('error')
+      expect(response.body.error).toMatch(/invalid path|library root/i)
+    })
+
+    it('should reject path traversal attempts', async () => {
+      const response = await request(app)
+        .patch(`/api/artists/${testArtistId1}`)
+        .send({ linked_folder_path: '../../../etc/passwd' })
+        .expect('Content-Type', /json/)
+        .expect(400)
+
+      expect(response.body).toHaveProperty('error')
+      expect(response.body.error).toMatch(/invalid path|library root/i)
+    })
+
+    it('should return 404 for nonexistent artist', async () => {
+      const response = await request(app)
+        .patch('/api/artists/99999')
+        .send({ linked_folder_path: 'SomeFolder' })
+        .expect('Content-Type', /json/)
+        .expect(404)
+
+      expect(response.body).toHaveProperty('error')
+      expect(response.body.error).toMatch(/artist.*not found/i)
+    })
+
+    it('should return 400 when no valid fields provided', async () => {
+      const response = await request(app)
+        .patch(`/api/artists/${testArtistId1}`)
+        .send({ unknown_field: 'value' })
+        .expect('Content-Type', /json/)
+        .expect(400)
+
+      expect(response.body).toHaveProperty('error')
     })
   })
 })
