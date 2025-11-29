@@ -94,6 +94,7 @@ function handleClearOverride() {
     <div class="mt-4 flex flex-wrap gap-2">
       <!-- Link Folder button -->
       <button
+        v-if="album.ownership_status !== 'Owned'"
         type="button"
         data-testid="link-folder-button"
         class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -104,6 +105,7 @@ function handleClearOverride() {
 
       <!-- Toggle Ownership button -->
       <button
+        v-if="album.ownership_status !== 'Owned'"
         type="button"
         data-testid="toggle-ownership-button"
         class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
