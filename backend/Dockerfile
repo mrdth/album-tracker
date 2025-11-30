@@ -7,13 +7,14 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY . .
+# Copy backend source and shared types
+COPY backend/ ./
+COPY shared/ ../shared/
 
 # Build TypeScript
 RUN npm run build
@@ -24,12 +25,13 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install production dependencies only
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm ci --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/db/schema.sql ./src/db/schema.sql
+COPY --from=builder /shared ../shared
 
 # Create directory for SQLite database
 RUN mkdir -p /app/data
