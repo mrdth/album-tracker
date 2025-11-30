@@ -34,11 +34,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T001 [P] Write failing contract test for POST /api/artists/:artistId/refresh in backend/tests/integration/api/artists-refresh.test.ts
-- [ ] T002 [P] Write failing contract test for GET /api/artists/stale-check in backend/tests/integration/api/artists-refresh.test.ts
-- [ ] T003 [P] Write failing unit test for dateFormat utility in backend/tests/unit/utils/dateFormat.test.ts
-- [ ] T004 [P] Implement dateFormat utility with formatRelativeTime() in backend/src/utils/dateFormat.ts
-- [ ] T005 Verify dateFormat tests now pass
+- [x] T001 [P] Write failing contract test for POST /api/artists/:artistId/refresh in backend/tests/integration/api/artists-refresh.test.ts
+- [x] T002 [P] Write failing contract test for GET /api/artists/stale-check in backend/tests/integration/api/artists-refresh.test.ts
+- [x] T003 [P] Write failing unit test for dateFormat utility in backend/tests/unit/utils/dateFormat.test.ts
+- [x] T004 [P] Implement dateFormat utility with formatRelativeTime() in backend/src/utils/dateFormat.ts
+- [x] T005 Verify dateFormat tests now pass
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
