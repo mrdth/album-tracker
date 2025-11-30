@@ -6,7 +6,8 @@
 
 import { getDatabase } from '../db/connection.js'
 import { SettingsModel } from '../models/Settings.js'
-import type { Settings } from '../../../shared/types/index.js'
+import { SearchProviderModel } from '../models/SearchProvider.js'
+import type { Settings, SearchProvider } from '../../../shared/types/index.js'
 
 export class SettingsRepository {
   /**
@@ -112,5 +113,137 @@ export class SettingsRepository {
    */
   static updateLastScanAt(timestamp: string): SettingsModel {
     return this.update({ last_scan_at: timestamp })
+  }
+
+  /**
+   * Get all search providers
+   */
+  static getSearchProviders(): SearchProvider[] {
+    const db = getDatabase()
+
+    const row = db.prepare('SELECT search_providers FROM Settings WHERE id = 1').get() as {
+      search_providers: string
+    }
+
+    if (!row) {
+      return []
+    }
+
+    try {
+      const providers = JSON.parse(row.search_providers)
+      return Array.isArray(providers) ? providers : []
+    } catch (e) {
+      console.error('Failed to parse search_providers JSON:', e)
+      return []
+    }
+  }
+
+  /**
+   * Create a new search provider
+   */
+  static createSearchProvider(name: string, urlTemplate: string): SearchProvider {
+    const db = getDatabase()
+
+    // Validate the provider
+    const validation = SearchProviderModel.validate({ name, urlTemplate })
+    if (!validation.valid) {
+      throw new Error(validation.errors.join('; '))
+    }
+
+    // Use a transaction for read-modify-write
+    const transaction = db.transaction(() => {
+      const providers = this.getSearchProviders()
+
+      const newProvider = SearchProviderModel.create(name, urlTemplate)
+      providers.push(newProvider)
+
+      db.prepare('UPDATE Settings SET search_providers = ? WHERE id = 1').run(
+        JSON.stringify(providers)
+      )
+
+      return newProvider
+    })
+
+    return transaction()
+  }
+
+  /**
+   * Update an existing search provider
+   */
+  static updateSearchProvider(
+    id: number,
+    updates: { name?: string; urlTemplate?: string }
+  ): SearchProvider | null {
+    const db = getDatabase()
+
+    // Validate updates
+    if (updates.name !== undefined || updates.urlTemplate !== undefined) {
+      // Get existing provider for validation
+      const providers = this.getSearchProviders()
+      const existing = providers.find(p => p.id === id)
+
+      if (!existing) {
+        return null
+      }
+
+      // Validate the updated provider
+      const updated = {
+        name: updates.name !== undefined ? updates.name : existing.name,
+        urlTemplate: updates.urlTemplate !== undefined ? updates.urlTemplate : existing.urlTemplate,
+      }
+
+      const validation = SearchProviderModel.validate(updated)
+      if (!validation.valid) {
+        throw new Error(validation.errors.join('; '))
+      }
+    }
+
+    // Use a transaction for read-modify-write
+    const transaction = db.transaction(() => {
+      const providers = this.getSearchProviders()
+      const index = providers.findIndex(p => p.id === id)
+
+      if (index === -1) {
+        return null
+      }
+
+      const updatedProvider = SearchProviderModel.update(providers[index], updates)
+      providers[index] = updatedProvider
+
+      db.prepare('UPDATE Settings SET search_providers = ? WHERE id = 1').run(
+        JSON.stringify(providers)
+      )
+
+      return updatedProvider
+    })
+
+    return transaction()
+  }
+
+  /**
+   * Delete a search provider
+   */
+  static deleteSearchProvider(id: number): boolean {
+    const db = getDatabase()
+
+    // Use a transaction for read-modify-write
+    const transaction = db.transaction(() => {
+      const providers = this.getSearchProviders()
+      const initialLength = providers.length
+
+      const filtered = providers.filter(p => p.id !== id)
+
+      if (filtered.length === initialLength) {
+        return false // Provider not found
+      }
+
+      db.prepare('UPDATE Settings SET search_providers = ? WHERE id = 1').run(
+        JSON.stringify(filtered)
+      )
+
+      return true
+    })
+
+    return transaction()
   }
 }

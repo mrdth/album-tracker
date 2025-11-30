@@ -38,12 +38,12 @@ This is a web application with monorepo structure:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create URL template utility in backend/src/utils/urlTemplate.ts with buildSearchUrl() and validateUrlTemplate() functions
-- [ ] T005 [P] Write unit tests for urlTemplate.ts in backend/tests/unit/urlTemplate.test.ts (verify encoding, placeholder replacement, validation)
-- [ ] T006 Create SearchProvider model class in backend/src/models/SearchProvider.ts with validation methods
-- [ ] T007 [P] Write unit tests for SearchProvider model in backend/tests/unit/SearchProvider.test.ts (verify validation rules)
-- [ ] T008 Extend SettingsRepository in backend/src/repositories/SettingsRepository.ts with methods: getSearchProviders(), createSearchProvider(), updateSearchProvider(), deleteSearchProvider()
-- [ ] T009 [P] Write integration tests for SettingsRepository search provider methods in backend/tests/integration/SettingsRepository.test.ts
+- [x] T004 Create URL template utility in backend/src/utils/urlTemplate.ts with buildSearchUrl() and validateUrlTemplate() functions
+- [x] T005 [P] Write unit tests for urlTemplate.ts in backend/tests/unit/urlTemplate.test.ts (verify encoding, placeholder replacement, validation)
+- [x] T006 Create SearchProvider model class in backend/src/models/SearchProvider.ts with validation methods
+- [x] T007 [P] Write unit tests for SearchProvider model in backend/tests/unit/SearchProvider.test.ts (verify validation rules)
+- [x] T008 Extend SettingsRepository in backend/src/repositories/SettingsRepository.ts with methods: getSearchProviders(), createSearchProvider(), updateSearchProvider(), deleteSearchProvider()
+- [x] T009 [P] Write integration tests for SettingsRepository search provider methods in backend/tests/integration/SettingsRepository.test.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
