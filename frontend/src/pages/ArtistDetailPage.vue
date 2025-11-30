@@ -238,8 +238,9 @@ onMounted(() => {
             aria-label="Scan summary"
           >
             <p class="text-sm text-green-800">
-              <strong>Scan complete!</strong> Scanned {{ scanResult.scanned_folders }} folders,
-              matched {{ scanResult.matched_albums }} albums.
+              <strong>Scan complete!</strong> Scanned {{ scanResult.folders_scanned }} folders,
+              updated {{ scanResult.albums_updated }} albums ({{ scanResult.new_owned }} owned,
+              {{ scanResult.new_missing }} missing, {{ scanResult.new_ambiguous }} ambiguous).
             </p>
           </div>
 

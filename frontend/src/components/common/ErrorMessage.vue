@@ -1,28 +1,25 @@
 <script setup lang="ts">
 interface Props {
-  message: string;
-  details?: string;
-  dismissible?: boolean;
+  message: string
+  details?: string
+  dismissible?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  dismissible: false
-});
+withDefaults(defineProps<Props>(), {
+  dismissible: false,
+})
 
 const emit = defineEmits<{
-  dismiss: [];
-}>();
+  dismiss: []
+}>()
 
 const handleDismiss = () => {
-  emit('dismiss');
-};
+  emit('dismiss')
+}
 </script>
 
 <template>
-  <div
-    role="alert"
-    class="bg-red-50 border border-red-200 rounded-lg p-4"
-  >
+  <div role="alert" class="bg-red-50 border border-red-200 rounded-lg p-4">
     <div class="flex items-start">
       <div class="flex-shrink-0">
         <svg

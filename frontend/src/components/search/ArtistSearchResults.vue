@@ -6,7 +6,7 @@ interface Props {
   importing?: string | null
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   importing: null,
 })
 

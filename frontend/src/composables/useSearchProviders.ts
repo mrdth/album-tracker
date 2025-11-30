@@ -11,7 +11,6 @@ import {
   createSearchProvider,
   updateSearchProvider,
   deleteSearchProvider,
-  SearchProviderApiError
 } from '../services/searchProviderService'
 
 export function useSearchProviders() {
@@ -42,8 +41,9 @@ export function useSearchProviders() {
       providers.value.push(newProvider)
       return newProvider
     } catch (err: any) {
-      error.value = err.message || 'Failed to create search provider'
-      throw new Error(error.value)
+      const errorMsg = err.message || 'Failed to create search provider'
+      error.value = errorMsg
+      throw new Error(errorMsg)
     } finally {
       loading.value = false
     }
@@ -61,8 +61,9 @@ export function useSearchProviders() {
       }
       return updatedProvider
     } catch (err: any) {
-      error.value = err.message || 'Failed to update search provider'
-      throw new Error(error.value)
+      const errorMsg = err.message || 'Failed to update search provider'
+      error.value = errorMsg
+      throw new Error(errorMsg)
     } finally {
       loading.value = false
     }
@@ -76,8 +77,9 @@ export function useSearchProviders() {
       await deleteSearchProvider(id)
       providers.value = providers.value.filter(p => p.id !== id)
     } catch (err: any) {
-      error.value = err.message || 'Failed to delete search provider'
-      throw new Error(error.value)
+      const errorMsg = err.message || 'Failed to delete search provider'
+      error.value = errorMsg
+      throw new Error(errorMsg)
     } finally {
       loading.value = false
     }
@@ -94,6 +96,6 @@ export function useSearchProviders() {
     fetchProviders,
     addProvider,
     editProvider,
-    removeProvider
+    removeProvider,
   }
 }

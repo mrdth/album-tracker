@@ -6,13 +6,7 @@
 
 import { ref } from 'vue'
 import { api } from '../services/api'
-
-export interface ScanResult {
-  artist_id: number
-  scanned_folders: number
-  matched_albums: number
-  scan_completed_at: string
-}
+import type { ScanResult } from '../../../shared/types/index.js'
 
 export function useFilesystemScan() {
   const scanning = ref(false)

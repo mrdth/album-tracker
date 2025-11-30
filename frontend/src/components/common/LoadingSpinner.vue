@@ -1,27 +1,23 @@
 <script setup lang="ts">
 interface Props {
-  size?: 'sm' | 'md' | 'lg';
-  message?: string;
+  size?: 'sm' | 'md' | 'lg'
+  message?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   size: 'md',
-  message: 'Loading...'
-});
+  message: 'Loading...',
+})
 
 const sizeClasses = {
   sm: 'h-4 w-4',
   md: 'h-8 w-8',
-  lg: 'h-12 w-12'
-};
+  lg: 'h-12 w-12',
+}
 </script>
 
 <template>
-  <div
-    role="status"
-    aria-live="polite"
-    class="flex flex-col items-center justify-center gap-3"
-  >
+  <div role="status" aria-live="polite" class="flex flex-col items-center justify-center gap-3">
     <svg
       :class="[sizeClasses[size], 'animate-spin text-blue-600']"
       xmlns="http://www.w3.org/2000/svg"

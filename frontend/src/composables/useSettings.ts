@@ -42,8 +42,9 @@ export function useSettings() {
     try {
       settings.value = await api.updateSettings(updates)
     } catch (err: any) {
-      error.value = err.message || 'Failed to update settings'
-      throw new Error(error.value)
+      const errorMsg = err.message || 'Failed to update settings'
+      error.value = errorMsg
+      throw new Error(errorMsg)
     } finally {
       loading.value = false
     }
