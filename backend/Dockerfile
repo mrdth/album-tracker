@@ -32,7 +32,7 @@ RUN npm ci --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src/db/schema.sql ./src/db/schema.sql
+COPY --from=builder /app/src/db/schema.sql ./dist/db/schema.sql
 
 # Create directory for SQLite database
 RUN mkdir -p /app/data
