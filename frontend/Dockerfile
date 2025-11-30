@@ -12,8 +12,9 @@ COPY frontend/package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Copy source code
+# Copy source code and shared types
 COPY frontend/ ./
+COPY shared/ ../shared/
 
 # Build the Vue application
 RUN npm run build
