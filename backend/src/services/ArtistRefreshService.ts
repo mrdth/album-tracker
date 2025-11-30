@@ -18,6 +18,17 @@ export interface RefreshResult {
   message?: string
 }
 
+export interface StaleCheckResult {
+  refresh_needed: boolean
+  artist?: {
+    id: number
+    name: string
+    updated_at: string
+    days_since_update: number
+  }
+  refresh_result?: RefreshResult
+}
+
 export class ArtistRefreshService {
   private musicBrainzService: MusicBrainzService
   private activeRefreshes: Set<number>
@@ -86,6 +97,54 @@ export class ArtistRefreshService {
     } finally {
       // Always remove from active refreshes, even if error occurs
       this.activeRefreshes.delete(artistId)
+    }
+  }
+
+  /**
+   * Check for stale artists and refresh if needed
+   *
+   * Finds the artist with the oldest updated_at timestamp.
+   * If that timestamp is >7 days old, triggers a refresh for that artist.
+   *
+   * @returns Stale check result with refresh status and details
+   */
+  async checkStaleArtists(): Promise<StaleCheckResult> {
+    const STALE_THRESHOLD_DAYS = 7
+
+    // Find artist with oldest updated_at
+    const oldestArtist = ArtistRepository.findOldest()
+
+    // No artists exist
+    if (!oldestArtist) {
+      return {
+        refresh_needed: false,
+      }
+    }
+
+    // Calculate days since last update
+    const updatedAt = new Date(oldestArtist.updated_at)
+    const now = new Date()
+    const daysSinceUpdate = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60 * 24)
+
+    // Check if stale (>7 days, not >=7)
+    if (daysSinceUpdate <= STALE_THRESHOLD_DAYS) {
+      return {
+        refresh_needed: false,
+      }
+    }
+
+    // Artist is stale - trigger refresh
+    const refreshResult = await this.refreshArtist(oldestArtist.id)
+
+    return {
+      refresh_needed: true,
+      artist: {
+        id: oldestArtist.id,
+        name: oldestArtist.name,
+        updated_at: oldestArtist.updated_at,
+        days_since_update: daysSinceUpdate,
+      },
+      refresh_result: refreshResult,
     }
   }
 

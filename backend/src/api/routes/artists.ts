@@ -139,6 +139,35 @@ router.get(
 )
 
 // ============================================================================
+// GET /api/artists/stale-check - Check for and refresh stale artist data
+// ============================================================================
+
+router.get(
+  '/stale-check',
+  asyncHandler(async (req, res) => {
+    try {
+      const result = await refreshService.checkStaleArtists()
+      res.json(result)
+    } catch (error: any) {
+      const message = error.message || 'Unknown error'
+
+      // MusicBrainz API errors
+      if (message.includes('MusicBrainz') || message.includes('Network error')) {
+        throw createApiError(
+          'Unable to refresh stale artist: MusicBrainz service unavailable',
+          503,
+          'EXTERNAL_API_ERROR',
+          { detail: message }
+        )
+      }
+
+      // Re-throw unknown errors
+      throw error
+    }
+  })
+)
+
+// ============================================================================
 // GET /api/artists/:artistId - Get artist detail with albums
 // ============================================================================
 

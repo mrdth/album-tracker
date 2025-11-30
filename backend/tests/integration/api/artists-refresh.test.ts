@@ -16,9 +16,9 @@ describe('Artist Refresh API Contract Tests', () => {
     const db = getDatabase()
 
     // Clean up any existing test data
-    db.prepare(
-      'DELETE FROM Album WHERE artist_id IN (SELECT id FROM Artist WHERE mbid = ?)'
-    ).run('5b11f4ce-a62d-471e-81fc-a69a8278c7da')
+    db.prepare('DELETE FROM Album WHERE artist_id IN (SELECT id FROM Artist WHERE mbid = ?)').run(
+      '5b11f4ce-a62d-471e-81fc-a69a8278c7da'
+    )
     db.prepare('DELETE FROM Artist WHERE mbid = ?').run('5b11f4ce-a62d-471e-81fc-a69a8278c7da')
 
     // Create test artist (Pink Floyd - real MBID)
@@ -108,9 +108,7 @@ describe('Artist Refresh API Contract Tests', () => {
       await request(app).post(`/api/artists/${testArtistId}/refresh`).expect(200)
 
       // Second refresh immediately after should find no new albums
-      const response = await request(app)
-        .post(`/api/artists/${testArtistId}/refresh`)
-        .expect(200)
+      const response = await request(app).post(`/api/artists/${testArtistId}/refresh`).expect(200)
 
       expect(response.body.success).toBe(true)
       expect(response.body.albums_added).toBe(0)
@@ -140,6 +138,9 @@ describe('Artist Refresh API Contract Tests', () => {
     it('should return 200 with refresh triggered when stale artist exists', async () => {
       const db = getDatabase()
 
+      // Disable trigger that auto-updates updated_at
+      db.prepare('DROP TRIGGER IF EXISTS update_artist_timestamp').run()
+
       // Set artist's updated_at to 15 days ago
       const fifteenDaysAgo = new Date()
       fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15)
@@ -148,6 +149,18 @@ describe('Artist Refresh API Contract Tests', () => {
         fifteenDaysAgo.toISOString(),
         testArtistId
       )
+
+      // Recreate trigger
+      db.prepare(
+        `
+        CREATE TRIGGER update_artist_timestamp
+        AFTER UPDATE ON Artist
+        FOR EACH ROW
+        BEGIN
+          UPDATE Artist SET updated_at = datetime('now') WHERE id = OLD.id;
+        END
+      `
+      ).run()
 
       const response = await request(app)
         .get('/api/artists/stale-check')

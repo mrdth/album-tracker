@@ -318,4 +318,167 @@ describe('ArtistRefreshService', () => {
       expect(result.success).toBe(true)
     })
   })
+
+  describe('checkStaleArtists()', () => {
+    it('should return refresh_needed: false when no artists exist', async () => {
+      const db = getDatabase()
+
+      // Remove all artists
+      db.prepare('DELETE FROM Album WHERE artist_id = ?').run(testArtistId)
+      db.prepare('DELETE FROM Artist WHERE id = ?').run(testArtistId)
+
+      const result = await service.checkStaleArtists()
+
+      expect(result.refresh_needed).toBe(false)
+      expect(result.artist).toBeUndefined()
+      expect(result.refresh_result).toBeUndefined()
+    })
+
+    it('should return refresh_needed: false when oldest artist is fresh (<7 days)', async () => {
+      // Artist was just created, so updated_at is recent
+      const result = await service.checkStaleArtists()
+
+      expect(result.refresh_needed).toBe(false)
+      expect(result.artist).toBeUndefined()
+      expect(result.refresh_result).toBeUndefined()
+    })
+
+    it('should refresh artist and return result when artist is stale (>7 days)', async () => {
+      const db = getDatabase()
+
+      // Disable trigger that auto-updates updated_at
+      db.prepare('DROP TRIGGER IF EXISTS update_artist_timestamp').run()
+
+      // Set artist updated_at to 15 days ago
+      const fifteenDaysAgo = new Date()
+      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15)
+      db.prepare('UPDATE Artist SET updated_at = ? WHERE id = ?').run(
+        fifteenDaysAgo.toISOString(),
+        testArtistId
+      )
+
+      // Recreate trigger
+      db.prepare(
+        `
+        CREATE TRIGGER update_artist_timestamp
+        AFTER UPDATE ON Artist
+        FOR EACH ROW
+        BEGIN
+          UPDATE Artist SET updated_at = datetime('now') WHERE id = OLD.id;
+        END
+      `
+      ).run()
+
+      // Mock MusicBrainz response
+      const mockAlbums: AlbumResult[] = [
+        {
+          title: 'The Wall',
+          disambiguation: undefined,
+          release_date: '1979-11-30',
+          mbid: '12345678-1234-1234-1234-123456789999',
+        },
+      ]
+      vi.spyOn(MusicBrainzService.prototype, 'fetchReleaseGroups').mockResolvedValue(mockAlbums)
+
+      const result = await service.checkStaleArtists()
+
+      expect(result.refresh_needed).toBe(true)
+      expect(result.artist).toBeDefined()
+      expect(result.artist!.id).toBe(testArtistId)
+      expect(result.artist!.name).toBe('Pink Floyd')
+      expect(result.artist!.days_since_update).toBeGreaterThan(7)
+
+      expect(result.refresh_result).toBeDefined()
+      expect(result.refresh_result!.success).toBe(true)
+      expect(result.refresh_result!.albums_added).toBe(1)
+    })
+
+    it('should calculate days_since_update correctly', async () => {
+      const db = getDatabase()
+
+      // Disable trigger that auto-updates updated_at
+      db.prepare('DROP TRIGGER IF EXISTS update_artist_timestamp').run()
+
+      // Set artist updated_at to exactly 10 days ago
+      const tenDaysAgo = new Date()
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 10)
+      db.prepare('UPDATE Artist SET updated_at = ? WHERE id = ?').run(
+        tenDaysAgo.toISOString(),
+        testArtistId
+      )
+
+      // Recreate trigger
+      db.prepare(
+        `
+        CREATE TRIGGER update_artist_timestamp
+        AFTER UPDATE ON Artist
+        FOR EACH ROW
+        BEGIN
+          UPDATE Artist SET updated_at = datetime('now') WHERE id = OLD.id;
+        END
+      `
+      ).run()
+
+      // Mock empty response
+      vi.spyOn(MusicBrainzService.prototype, 'fetchReleaseGroups').mockResolvedValue([])
+
+      const result = await service.checkStaleArtists()
+
+      expect(result.refresh_needed).toBe(true)
+      expect(result.artist!.days_since_update).toBeCloseTo(10, 0)
+    })
+
+    it('should return refresh_needed: false when artist is exactly 7 days old', async () => {
+      const db = getDatabase()
+
+      // Set artist updated_at to exactly 7 days and 1 second ago
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      sevenDaysAgo.setSeconds(sevenDaysAgo.getSeconds() - 1)
+      db.prepare('UPDATE Artist SET updated_at = ? WHERE id = ?').run(
+        sevenDaysAgo.toISOString(),
+        testArtistId
+      )
+
+      const result = await service.checkStaleArtists()
+
+      // ~7 days should NOT trigger (threshold is >7, not >=7)
+      expect(result.refresh_needed).toBe(false)
+    })
+
+    it('should handle MusicBrainz API errors during stale check', async () => {
+      const db = getDatabase()
+
+      // Disable trigger that auto-updates updated_at
+      db.prepare('DROP TRIGGER IF EXISTS update_artist_timestamp').run()
+
+      // Set artist to stale (8 days ago to ensure it's definitely >7)
+      const eightDaysAgo = new Date()
+      eightDaysAgo.setDate(eightDaysAgo.getDate() - 8)
+      db.prepare('UPDATE Artist SET updated_at = ? WHERE id = ?').run(
+        eightDaysAgo.toISOString(),
+        testArtistId
+      )
+
+      // Recreate trigger
+      db.prepare(
+        `
+        CREATE TRIGGER update_artist_timestamp
+        AFTER UPDATE ON Artist
+        FOR EACH ROW
+        BEGIN
+          UPDATE Artist SET updated_at = datetime('now') WHERE id = OLD.id;
+        END
+      `
+      ).run()
+
+      // Mock API error
+      vi.spyOn(MusicBrainzService.prototype, 'fetchReleaseGroups').mockRejectedValue(
+        new Error('MusicBrainz API unavailable')
+      )
+
+      // Should throw error
+      await expect(service.checkStaleArtists()).rejects.toThrow('MusicBrainz API unavailable')
+    })
+  })
 })

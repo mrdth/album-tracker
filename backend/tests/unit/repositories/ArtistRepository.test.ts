@@ -196,4 +196,68 @@ describe('ArtistRepository', () => {
       expect(artists[1].name).toBe('The Beatles')
     })
   })
+
+  describe('findOldest()', () => {
+    it('should return the artist with the oldest updated_at timestamp', () => {
+      // Set artist 1 to have older timestamp (10 days ago)
+      const tenDaysAgo = new Date()
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 10)
+      db.prepare('UPDATE Artist SET updated_at = ? WHERE id = ?').run(
+        tenDaysAgo.toISOString(),
+        testArtistId1
+      )
+
+      // Set artist 2 to have newer timestamp (2 days ago)
+      const twoDaysAgo = new Date()
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+      db.prepare('UPDATE Artist SET updated_at = ? WHERE id = ?').run(
+        twoDaysAgo.toISOString(),
+        testArtistId2
+      )
+
+      const oldest = ArtistRepository.findOldest()
+
+      expect(oldest).toBeDefined()
+      expect(oldest!.id).toBe(testArtistId1)
+      expect(oldest!.name).toBe('Radiohead')
+    })
+
+    it('should return null when no artists exist', () => {
+      // Clean up all artists
+      db.prepare('DELETE FROM Album').run()
+      db.prepare('DELETE FROM Artist').run()
+
+      const oldest = ArtistRepository.findOldest()
+
+      expect(oldest).toBeNull()
+    })
+
+    it('should return the only artist when only one exists', () => {
+      // Delete artist 2
+      db.prepare('DELETE FROM Album WHERE artist_id = ?').run(testArtistId2)
+      db.prepare('DELETE FROM Artist WHERE id = ?').run(testArtistId2)
+
+      const oldest = ArtistRepository.findOldest()
+
+      expect(oldest).toBeDefined()
+      expect(oldest!.id).toBe(testArtistId1)
+      expect(oldest!.name).toBe('Radiohead')
+    })
+
+    it('should handle artists with identical timestamps', () => {
+      // Set both artists to same timestamp
+      const timestamp = new Date().toISOString()
+      db.prepare('UPDATE Artist SET updated_at = ? WHERE id IN (?, ?)').run(
+        timestamp,
+        testArtistId1,
+        testArtistId2
+      )
+
+      const oldest = ArtistRepository.findOldest()
+
+      // Should return one of them (deterministic based on ORDER BY)
+      expect(oldest).toBeDefined()
+      expect([testArtistId1, testArtistId2]).toContain(oldest!.id)
+    })
+  })
 })

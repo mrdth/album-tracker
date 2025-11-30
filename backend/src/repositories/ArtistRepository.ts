@@ -192,6 +192,40 @@ export class ArtistRepository {
   }
 
   /**
+   * Find artist with oldest updated_at timestamp
+   *
+   * Used for stale data detection
+   */
+  static findOldest(): ArtistModel | null {
+    const db = getDatabase()
+
+    const row = db
+      .prepare(
+        `
+        SELECT
+          a.*,
+          COUNT(al.id) AS total_albums,
+          SUM(CASE WHEN al.ownership_status = 'Owned' THEN 1 ELSE 0 END) AS owned_albums,
+          CAST(
+            CASE
+              WHEN COUNT(al.id) > 0
+              THEN CAST(SUM(CASE WHEN al.ownership_status = 'Owned' THEN 1 ELSE 0 END) AS REAL) / COUNT(al.id) * 100
+              ELSE 0
+            END AS INTEGER
+          ) AS completion_percentage
+        FROM Artist a
+        LEFT JOIN Album al ON al.artist_id = a.id
+        GROUP BY a.id
+        ORDER BY a.updated_at ASC
+        LIMIT 1
+      `
+      )
+      .get() as Artist | undefined
+
+    return row ? new ArtistModel(row) : null
+  }
+
+  /**
    * Check if artist with MBID already exists
    */
   static exists(mbid: string): boolean {

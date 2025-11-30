@@ -91,14 +91,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T024 [P] [US2] Write failing test for timestamp display formatting in frontend/tests/components/ArtistDetailHeader.test.ts
-- [ ] T025 [P] [US2] Write failing E2E test for timestamp display on artist detail page in e2e/artist-detail-timestamp.spec.ts
+- [x] T024 [P] [US2] Write failing test for timestamp display formatting in frontend/tests/components/ArtistDetailHeader.test.ts
+- [x] T025 [P] [US2] Write failing E2E test for timestamp display on artist detail page in e2e/artist-detail-timestamp.spec.ts
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Update ArtistDetailHeader to compute and display formatted timestamp using formatRelativeTime() in frontend/src/components/ArtistDetailHeader.vue
-- [ ] T027 [US2] Add styles for timestamp display (subtle, gray text) in frontend/src/components/ArtistDetailHeader.vue
-- [ ] T028 [US2] Verify tests pass (T024-T025) and timestamp displays correctly for various scenarios
+- [x] T026 [US2] Update ArtistDetailHeader to compute and display formatted timestamp using formatRelativeTime() in frontend/src/components/ArtistDetailHeader.vue
+- [x] T027 [US2] Add styles for timestamp display (subtle, gray text) in frontend/src/components/ArtistDetailHeader.vue
+- [x] T028 [US2] Verify tests pass (T024-T025) and timestamp displays correctly for various scenarios
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. Timestamps accurately reflect data freshness.
 
@@ -112,19 +112,19 @@
 
 ### Tests for User Story 3
 
-- [ ] T029 [P] [US3] Write failing unit test for ArtistRepository.findOldest() in backend/tests/unit/repositories/ArtistRepository.test.ts
-- [ ] T030 [P] [US3] Write failing unit test for ArtistRefreshService.checkStaleArtists() in backend/tests/unit/services/ArtistRefreshService.test.ts
-- [ ] T031 [P] [US3] Write failing integration test for stale-check endpoint when stale artist exists in backend/tests/integration/api/artists-refresh.test.ts
-- [ ] T032 [P] [US3] Write failing integration test for stale-check endpoint when no stale artists in backend/tests/integration/api/artists-refresh.test.ts
+- [x] T029 [P] [US3] Write failing unit test for ArtistRepository.findOldest() in backend/tests/unit/repositories/ArtistRepository.test.ts
+- [x] T030 [P] [US3] Write failing unit test for ArtistRefreshService.checkStaleArtists() in backend/tests/unit/services/ArtistRefreshService.test.ts
+- [x] T031 [P] [US3] Write failing integration test for stale-check endpoint when stale artist exists in backend/tests/integration/api/artists-refresh.test.ts
+- [x] T032 [P] [US3] Write failing integration test for stale-check endpoint when no stale artists in backend/tests/integration/api/artists-refresh.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Implement ArtistRepository.findOldest() method with ORDER BY updated_at ASC LIMIT 1 in backend/src/repositories/ArtistRepository.ts
-- [ ] T034 [US3] Implement ArtistRefreshService.checkStaleArtists() with 7-day threshold logic in backend/src/services/ArtistRefreshService.ts
-- [ ] T035 [US3] Add GET /api/artists/stale-check endpoint in backend/src/api/routes/artists.ts
-- [ ] T036 [US3] Wire up stale-check endpoint to call ArtistRefreshService.checkStaleArtists() in backend/src/api/routes/artists.ts
-- [ ] T037 [US3] Add error handling and response formatting for stale-check endpoint in backend/src/api/routes/artists.ts
-- [ ] T038 [US3] Verify all tests pass (T029-T032)
+- [x] T033 [P] [US3] Implement ArtistRepository.findOldest() method with ORDER BY updated_at ASC LIMIT 1 in backend/src/repositories/ArtistRepository.ts
+- [x] T034 [US3] Implement ArtistRefreshService.checkStaleArtists() with 7-day threshold logic in backend/src/services/ArtistRefreshService.ts
+- [x] T035 [US3] Add GET /api/artists/stale-check endpoint in backend/src/api/routes/artists.ts
+- [x] T036 [US3] Wire up stale-check endpoint to call ArtistRefreshService.checkStaleArtists() in backend/src/api/routes/artists.ts
+- [x] T037 [US3] Add error handling and response formatting for stale-check endpoint in backend/src/api/routes/artists.ts
+- [x] T038 [US3] Verify all tests pass (T029-T032)
 
 **Checkpoint**: All user stories should now be independently functional. Stale data can be automatically detected and refreshed.
 
