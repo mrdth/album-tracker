@@ -59,21 +59,21 @@ This is a web application with monorepo structure:
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for GET /api/settings/search-providers in backend/tests/contract/searchProvidersApi.test.ts
-- [ ] T011 [P] [US1] Contract test for POST /api/settings/search-providers in backend/tests/contract/searchProvidersApi.test.ts
-- [ ] T012 [P] [US1] Contract test for PUT /api/settings/search-providers/:id in backend/tests/contract/searchProvidersApi.test.ts
-- [ ] T013 [P] [US1] Contract test for DELETE /api/settings/search-providers/:id in backend/tests/contract/searchProvidersApi.test.ts
-- [ ] T014 [P] [US1] Integration test for full CRUD flow in backend/tests/integration/searchProviders.test.ts
+- [x] T010 [P] [US1] Contract test for GET /api/settings/search-providers in backend/tests/integration/api/searchProvidersApi.test.ts
+- [x] T011 [P] [US1] Contract test for POST /api/settings/search-providers in backend/tests/integration/api/searchProvidersApi.test.ts
+- [x] T012 [P] [US1] Contract test for PUT /api/settings/search-providers/:id in backend/tests/integration/api/searchProvidersApi.test.ts
+- [x] T013 [P] [US1] Contract test for DELETE /api/settings/search-providers/:id in backend/tests/integration/api/searchProvidersApi.test.ts
+- [x] T014 [P] [US1] Integration test for full CRUD flow in backend/tests/integration/api/searchProvidersApi.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Create SearchProviderService in backend/src/services/SearchProviderService.ts with business logic for CRUD operations and validation
-- [ ] T016 [US1] Create search provider routes in backend/src/api/routes/searchProvidersRoutes.ts implementing GET, POST, PUT, DELETE endpoints per contracts/search-providers-api.yaml
-- [ ] T017 [US1] Register search provider routes in backend/src/server.ts
-- [ ] T018 [P] [US1] Create searchProviderService API client in frontend/src/services/searchProviderService.ts with methods: list(), create(), update(), delete()
-- [ ] T019 [P] [US1] Create useSearchProviders composable in frontend/src/composables/useSearchProviders.ts with state management and CRUD methods
-- [ ] T020 [US1] Create SearchProvidersList component in frontend/src/components/settings/SearchProvidersList.vue with add/edit/delete UI
-- [ ] T021 [US1] Integrate SearchProvidersList component into frontend/src/pages/SettingsPage.vue
+- [x] T015 [US1] Create SearchProviderService in backend/src/services/SearchProviderService.ts with business logic for CRUD operations and validation
+- [x] T016 [US1] Create search provider routes in backend/src/api/routes/searchProvidersRoutes.ts implementing GET, POST, PUT, DELETE endpoints per contracts/search-providers-api.yaml
+- [x] T017 [US1] Register search provider routes in backend/src/api/routes/settings.ts
+- [x] T018 [P] [US1] Create searchProviderService API client in frontend/src/services/searchProviderService.ts with methods: list(), create(), update(), delete()
+- [x] T019 [P] [US1] Create useSearchProviders composable in frontend/src/composables/useSearchProviders.ts with state management and CRUD methods
+- [x] T020 [US1] Create SearchProvidersList component in frontend/src/components/settings/SearchProvidersList.vue with add/edit/delete UI
+- [x] T021 [US1] Integrate SearchProvidersList component into frontend/src/pages/SettingsPage.vue
 - [ ] T022 [P] [US1] Write unit tests for SearchProvidersList component in frontend/tests/unit/SearchProvidersList.test.ts
 - [ ] T023 [P] [US1] Write E2E test for provider management flow in frontend/tests/e2e/searchProviders.spec.ts (add → edit → delete → persist)
 

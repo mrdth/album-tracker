@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LibraryPathConfig from '../components/settings/LibraryPathConfig.vue'
+import SearchProvidersList from '../components/settings/SearchProvidersList.vue'
 </script>
 
 <template>
@@ -14,6 +15,10 @@ import LibraryPathConfig from '../components/settings/LibraryPathConfig.vue'
 
       <div class="bg-white rounded-lg shadow-md p-6">
         <LibraryPathConfig />
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+        <SearchProvidersList />
       </div>
 
       <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-md">

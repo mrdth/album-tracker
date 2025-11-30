@@ -6,10 +6,14 @@
 
 import { Router, Request, Response } from 'express'
 import { SettingsRepository } from '../../repositories/SettingsRepository'
+import searchProvidersRouter from './searchProviders.js'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
 const router = Router()
+
+// Mount search providers subrouter
+router.use('/search-providers', searchProvidersRouter)
 
 /**
  * GET /api/settings
