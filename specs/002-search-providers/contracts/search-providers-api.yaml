@@ -1,0 +1,314 @@
+openapi: 3.0.3
+info:
+  title: Album Tracker - Search Providers API
+  description: |
+    REST API for managing user-configured search providers in the Album Tracker application.
+    Search providers allow users to quickly search for missing albums on external services like Discogs, MusicBrainz, etc.
+  version: 1.0.0
+  contact:
+    name: Album Tracker Development
+  license:
+    name: ISC
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+tags:
+  - name: search-providers
+    description: Operations for managing search provider configurations
+
+paths:
+  /settings/search-providers:
+    get:
+      summary: List all search providers
+      description: Retrieve all user-configured search providers from the Settings singleton.
+      operationId: listSearchProviders
+      tags:
+        - search-providers
+      responses:
+        '200':
+          description: Successfully retrieved search providers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  providers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SearchProvider'
+                example:
+                  providers:
+                    - id: 1701360000000
+                      name: Discogs
+                      urlTemplate: "https://www.discogs.com/search/?q={artist}+{album}&type=release"
+                      createdAt: "2025-11-30T10:00:00.000Z"
+                      updatedAt: "2025-11-30T10:00:00.000Z"
+                    - id: 1701360001000
+                      name: MusicBrainz
+                      urlTemplate: "https://musicbrainz.org/search?query={artist}+{album}&type=release"
+                      createdAt: "2025-11-30T10:00:01.000Z"
+                      updatedAt: "2025-11-30T10:00:01.000Z"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create a new search provider
+      description: Add a new search provider configuration to the Settings. Validates name and URL template before saving.
+      operationId: createSearchProvider
+      tags:
+        - search-providers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSearchProviderRequest'
+            examples:
+              discogs:
+                summary: Discogs search provider
+                value:
+                  name: Discogs
+                  urlTemplate: "https://www.discogs.com/search/?q={artist}+{album}&type=release"
+              musicbrainz:
+                summary: MusicBrainz search provider
+                value:
+                  name: MusicBrainz
+                  urlTemplate: "https://musicbrainz.org/search?query={artist}+{album}&type=release"
+      responses:
+        '201':
+          description: Search provider created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchProvider'
+              example:
+                id: 1701360000000
+                name: Discogs
+                urlTemplate: "https://www.discogs.com/search/?q={artist}+{album}&type=release"
+                createdAt: "2025-11-30T10:00:00.000Z"
+                updatedAt: "2025-11-30T10:00:00.000Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /settings/search-providers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SearchProviderId'
+
+    put:
+      summary: Update an existing search provider
+      description: Update the name and/or URL template of an existing search provider. Only provided fields are updated.
+      operationId: updateSearchProvider
+      tags:
+        - search-providers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSearchProviderRequest'
+            examples:
+              updateName:
+                summary: Update provider name only
+                value:
+                  name: "Discogs (Official)"
+              updateTemplate:
+                summary: Update URL template only
+                value:
+                  urlTemplate: "https://www.discogs.com/search/?q={album}+{artist}&type=release"
+              updateBoth:
+                summary: Update both name and template
+                value:
+                  name: "Discogs (Official)"
+                  urlTemplate: "https://www.discogs.com/search/?q={album}+{artist}&type=release"
+      responses:
+        '200':
+          description: Search provider updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchProvider'
+              example:
+                id: 1701360000000
+                name: "Discogs (Official)"
+                urlTemplate: "https://www.discogs.com/search/?q={album}+{artist}&type=release"
+                createdAt: "2025-11-30T10:00:00.000Z"
+                updatedAt: "2025-11-30T10:15:00.000Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete a search provider
+      description: Remove a search provider from the Settings. This action cannot be undone.
+      operationId: deleteSearchProvider
+      tags:
+        - search-providers
+      responses:
+        '204':
+          description: Search provider deleted successfully (no content)
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  parameters:
+    SearchProviderId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier of the search provider (timestamp-based)
+      schema:
+        type: integer
+        format: int64
+        example: 1701360000000
+
+  schemas:
+    SearchProvider:
+      type: object
+      description: A user-configured search provider with URL template for searching missing albums
+      required:
+        - id
+        - name
+        - urlTemplate
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier generated using Date.now() (milliseconds since epoch)
+          example: 1701360000000
+        name:
+          type: string
+          description: Display name for the search provider
+          minLength: 1
+          maxLength: 100
+          example: Discogs
+        urlTemplate:
+          type: string
+          description: |
+            URL template with placeholders {artist} and {album} that will be replaced with encoded values.
+            Must start with http:// or https://.
+          format: uri
+          minLength: 1
+          maxLength: 500
+          pattern: '^https?://'
+          example: "https://www.discogs.com/search/?q={artist}+{album}&type=release"
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the provider was created
+          example: "2025-11-30T10:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the provider was last updated
+          example: "2025-11-30T10:00:00.000Z"
+
+    CreateSearchProviderRequest:
+      type: object
+      description: Request body for creating a new search provider
+      required:
+        - name
+        - urlTemplate
+      properties:
+        name:
+          type: string
+          description: Display name for the search provider
+          minLength: 1
+          maxLength: 100
+          example: Discogs
+        urlTemplate:
+          type: string
+          description: URL template with {artist} and {album} placeholders
+          format: uri
+          minLength: 1
+          maxLength: 500
+          pattern: '^https?://'
+          example: "https://www.discogs.com/search/?q={artist}+{album}&type=release"
+
+    UpdateSearchProviderRequest:
+      type: object
+      description: Request body for updating an existing search provider (all fields optional)
+      properties:
+        name:
+          type: string
+          description: New display name for the search provider
+          minLength: 1
+          maxLength: 100
+          example: "Discogs (Official)"
+        urlTemplate:
+          type: string
+          description: New URL template with {artist} and {album} placeholders
+          format: uri
+          minLength: 1
+          maxLength: 500
+          pattern: '^https?://'
+          example: "https://www.discogs.com/search/?q={album}+{artist}&type=release"
+
+    ErrorResponse:
+      type: object
+      description: Standard error response format
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Validation failed"
+        details:
+          type: string
+          description: Additional error details (optional)
+          example: "Provider name is required"
+
+  responses:
+    BadRequest:
+      description: Invalid request (validation error)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missingName:
+              summary: Missing provider name
+              value:
+                error: "Validation failed"
+                details: "Provider name is required"
+            invalidUrl:
+              summary: Invalid URL template
+              value:
+                error: "Validation failed"
+                details: "URL template must start with http:// or https://"
+            nameTooLong:
+              summary: Name exceeds maximum length
+              value:
+                error: "Validation failed"
+                details: "Provider name must be 100 characters or less"
+
+    NotFound:
+      description: Search provider not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Not found"
+            details: "Search provider with id 1701360000000 not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Internal server error"
+            details: "Failed to parse search providers JSON"
