@@ -9,6 +9,7 @@ import { ArtistRepository } from '../../repositories/ArtistRepository.js'
 import { AlbumRepository } from '../../repositories/AlbumRepository.js'
 import { SettingsRepository } from '../../repositories/SettingsRepository.js'
 import { musicBrainzService } from '../../services/MusicBrainzService.js'
+import { ArtistRefreshService } from '../../services/ArtistRefreshService.js'
 import { AlbumModel } from '../../models/Album.js'
 import { asyncHandler, createApiError } from '../middleware/errorHandler.js'
 import {
@@ -20,6 +21,7 @@ import {
 import { safeResolvePath } from '../../utils/pathValidation.js'
 
 const router = Router()
+const refreshService = new ArtistRefreshService()
 
 // ============================================================================
 // GET /api/artists/search - Search for artists
@@ -238,6 +240,63 @@ router.patch(
     const updatedArtist = ArtistRepository.update(artistId, updates)
 
     res.json(updatedArtist)
+  })
+)
+
+// ============================================================================
+// POST /api/artists/:artistId/refresh - Refresh artist's album collection
+// ============================================================================
+
+router.post(
+  '/:artistId/refresh',
+  validateParams({
+    artistId: {
+      type: 'string',
+      pattern: ValidationPatterns.INTEGER,
+      validate: value => {
+        const id = parseInt(value, 10)
+        if (isNaN(id) || id <= 0) {
+          return { valid: false, error: 'Artist ID must be a positive integer' }
+        }
+        return { valid: true }
+      },
+    },
+  }),
+  asyncHandler(async (req, res) => {
+    const artistId = parseInt(req.params.artistId, 10)
+
+    try {
+      const result = await refreshService.refreshArtist(artistId)
+      res.json(result)
+    } catch (error: any) {
+      const message = error.message || 'Unknown error'
+
+      // Handle specific error cases
+      if (message === 'Artist not found') {
+        throw createApiError('Artist not found', 404, 'ARTIST_NOT_FOUND')
+      }
+
+      if (message === 'Refresh already in progress for this artist') {
+        throw createApiError(
+          'Refresh already in progress for this artist',
+          409,
+          'REFRESH_IN_PROGRESS'
+        )
+      }
+
+      // MusicBrainz API errors
+      if (message.includes('MusicBrainz') || message.includes('Network error')) {
+        throw createApiError(
+          'Unable to connect to MusicBrainz service',
+          503,
+          'EXTERNAL_API_ERROR',
+          { detail: message }
+        )
+      }
+
+      // Re-throw unknown errors
+      throw error
+    }
   })
 )
 

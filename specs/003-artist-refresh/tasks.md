@@ -54,20 +54,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T006 [P] [US1] Write failing unit test for ArtistRefreshService.refreshArtist() in backend/tests/unit/services/ArtistRefreshService.test.ts
-- [ ] T007 [P] [US1] Write failing unit test for ArtistRefreshService concurrency handling in backend/tests/unit/services/ArtistRefreshService.test.ts
-- [ ] T008 [P] [US1] Write failing integration test for refresh endpoint success case in backend/tests/integration/api/artists-refresh.test.ts
-- [ ] T009 [P] [US1] Write failing integration test for refresh endpoint error cases in backend/tests/integration/api/artists-refresh.test.ts
-- [ ] T010 [P] [US1] Write failing E2E test for complete refresh flow in e2e/artist-refresh.spec.ts
+- [x] T006 [P] [US1] Write failing unit test for ArtistRefreshService.refreshArtist() in backend/tests/unit/services/ArtistRefreshService.test.ts
+- [x] T007 [P] [US1] Write failing unit test for ArtistRefreshService concurrency handling in backend/tests/unit/services/ArtistRefreshService.test.ts
+- [x] T008 [P] [US1] Write failing integration test for refresh endpoint success case in backend/tests/integration/api/artists-refresh.test.ts
+- [x] T009 [P] [US1] Write failing integration test for refresh endpoint error cases in backend/tests/integration/api/artists-refresh.test.ts
+- [x] T010 [P] [US1] Write failing E2E test for complete refresh flow in e2e/artist-refresh.spec.ts
 
 ### Backend Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Create ArtistRefreshService class with activeRefreshes Set in backend/src/services/ArtistRefreshService.ts
-- [ ] T012 [US1] Implement ArtistRefreshService.refreshArtist() method with duplicate prevention logic in backend/src/services/ArtistRefreshService.ts
-- [ ] T013 [US1] Add POST /api/artists/:artistId/refresh endpoint with validation in backend/src/api/routes/artists.ts
-- [ ] T014 [US1] Wire up refresh endpoint to call ArtistRefreshService.refreshArtist() in backend/src/api/routes/artists.ts
-- [ ] T015 [US1] Add error handling for 404, 409, 503 cases in refresh endpoint in backend/src/api/routes/artists.ts
-- [ ] T016 [US1] Verify backend tests pass (T006-T009)
+- [x] T011 [P] [US1] Create ArtistRefreshService class with activeRefreshes Set in backend/src/services/ArtistRefreshService.ts
+- [x] T012 [US1] Implement ArtistRefreshService.refreshArtist() method with duplicate prevention logic in backend/src/services/ArtistRefreshService.ts
+- [x] T013 [US1] Add POST /api/artists/:artistId/refresh endpoint with validation in backend/src/api/routes/artists.ts
+- [x] T014 [US1] Wire up refresh endpoint to call ArtistRefreshService.refreshArtist() in backend/src/api/routes/artists.ts
+- [x] T015 [US1] Add error handling for 404, 409, 503 cases in refresh endpoint in backend/src/api/routes/artists.ts
+- [x] T016 [US1] Verify backend tests pass (T006-T009)
 
 ### Frontend Implementation for User Story 1
 

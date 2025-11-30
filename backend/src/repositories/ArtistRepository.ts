@@ -172,6 +172,26 @@ export class ArtistRepository {
   }
 
   /**
+   * Touch artist to update updated_at timestamp
+   *
+   * This triggers the updated_at trigger without changing any fields
+   */
+  static touch(id: number): ArtistModel {
+    const db = getDatabase()
+
+    // Update with same value to trigger updated_at
+    const stmt = db.prepare(`
+      UPDATE Artist
+      SET updated_at = datetime('now')
+      WHERE id = ?
+    `)
+
+    stmt.run(id)
+
+    return this.findById(id)!
+  }
+
+  /**
    * Check if artist with MBID already exists
    */
   static exists(mbid: string): boolean {
