@@ -1,0 +1,195 @@
+openapi: 3.0.3
+info:
+  title: Stale Artist Check API
+  description: API contract for checking and refreshing artists with stale data (>7 days old)
+  version: 1.0.0
+
+paths:
+  /api/artists/stale-check:
+    get:
+      summary: Check for and refresh stale artist data
+      description: |
+        Identifies the artist with the oldest updated_at timestamp. If that timestamp
+        is more than 7 days old, automatically triggers a refresh for that artist.
+        Returns information about whether a refresh was needed and the results.
+      operationId: checkStaleArtists
+      tags:
+        - Artists
+        - Maintenance
+      responses:
+        '200':
+          description: Stale check completed successfully
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/RefreshTriggered'
+                  - $ref: '#/components/schemas/NoRefreshNeeded'
+              examples:
+                refreshTriggered:
+                  summary: Stale artist found and refreshed
+                  value:
+                    refresh_needed: true
+                    artist:
+                      id: 42
+                      name: "Pink Floyd"
+                      updated_at: "2025-11-15T10:00:00.000Z"
+                      days_since_update: 15
+                    refresh_result:
+                      success: true
+                      albums_added: 2
+                      updated_at: "2025-11-30T14:30:00.000Z"
+                noRefreshNeeded:
+                  summary: No stale artists found
+                  value:
+                    refresh_needed: false
+                noArtistsExist:
+                  summary: No artists in collection
+                  value:
+                    refresh_needed: false
+                    message: "No artists in collection"
+        '503':
+          description: MusicBrainz API unavailable during refresh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Unable to refresh stale artist: MusicBrainz API unavailable"
+                code: "EXTERNAL_API_ERROR"
+                status: 503
+
+components:
+  schemas:
+    RefreshTriggered:
+      type: object
+      required:
+        - refresh_needed
+        - artist
+        - refresh_result
+      properties:
+        refresh_needed:
+          type: boolean
+          description: Indicates a refresh was needed
+          enum: [true]
+        artist:
+          type: object
+          description: Information about the stale artist that was refreshed
+          required:
+            - id
+            - name
+            - updated_at
+            - days_since_update
+          properties:
+            id:
+              type: integer
+              description: Artist database ID
+              example: 42
+            name:
+              type: string
+              description: Artist name
+              example: "Pink Floyd"
+            updated_at:
+              type: string
+              format: date-time
+              description: Timestamp before refresh (stale timestamp)
+              example: "2025-11-15T10:00:00.000Z"
+            days_since_update:
+              type: number
+              format: float
+              description: Number of days since last update
+              minimum: 7.0
+              example: 15.5
+        refresh_result:
+          type: object
+          description: Results of the refresh operation
+          required:
+            - success
+            - albums_added
+            - updated_at
+          properties:
+            success:
+              type: boolean
+              description: Indicates refresh succeeded
+              example: true
+            albums_added:
+              type: integer
+              description: Number of new albums added
+              minimum: 0
+              example: 2
+            updated_at:
+              type: string
+              format: date-time
+              description: New updated_at timestamp after refresh
+              example: "2025-11-30T14:30:00.000Z"
+            message:
+              type: string
+              description: Optional additional information
+              example: "No new albums found"
+
+    NoRefreshNeeded:
+      type: object
+      required:
+        - refresh_needed
+      properties:
+        refresh_needed:
+          type: boolean
+          description: Indicates no refresh was needed
+          enum: [false]
+        message:
+          type: string
+          description: Optional explanation
+          example: "No artists in collection"
+
+    Error:
+      type: object
+      required:
+        - error
+        - code
+        - status
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        status:
+          type: integer
+          description: HTTP status code
+        details:
+          type: object
+          description: Optional additional error details
+          additionalProperties: true
+
+  examples:
+    StaleArtistRefreshed:
+      summary: Found and refreshed a stale artist
+      value:
+        refresh_needed: true
+        artist:
+          id: 42
+          name: "Pink Floyd"
+          updated_at: "2025-11-15T10:00:00.000Z"
+          days_since_update: 15
+        refresh_result:
+          success: true
+          albums_added: 2
+          updated_at: "2025-11-30T14:30:00.000Z"
+
+    AllArtistsFresh:
+      summary: All artists updated within last 7 days
+      value:
+        refresh_needed: false
+
+    NoArtists:
+      summary: Collection is empty
+      value:
+        refresh_needed: false
+        message: "No artists in collection"
+
+tags:
+  - name: Artists
+    description: Artist management operations
+  - name: Maintenance
+    description: Background maintenance operations
