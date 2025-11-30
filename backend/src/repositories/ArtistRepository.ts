@@ -5,7 +5,7 @@
  */
 
 import { getDatabase } from '../db/connection.js'
-import { ArtistModel } from '../models/Artist.ts'
+import { ArtistModel } from '../models/Artist.js'
 import type { Artist } from '../../../shared/types/index.js'
 
 export class ArtistRepository {

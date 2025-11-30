@@ -36,7 +36,7 @@ app.use(
 app.use(express.json())
 
 // Request logging
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`)
   next()
 })
@@ -65,7 +65,7 @@ try {
 // ============================================================================
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -74,7 +74,7 @@ app.get('/health', (req, res) => {
 })
 
 // API version endpoint
-app.get('/api', (req, res) => {
+app.get('/api', (_req, res) => {
   res.json({
     name: 'Album Tracker API',
     version: '1.0.0',

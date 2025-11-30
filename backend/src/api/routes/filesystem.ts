@@ -140,7 +140,7 @@ router.post('/scan', async (req: Request, res: Response) => {
     const scanTimestamp = new Date().toISOString()
     SettingsRepository.updateLastScanAt(scanTimestamp)
 
-    res.json({
+    return res.json({
       artist_id,
       scanned_folders: folderEntries.length,
       matched_albums: matchedCount,
@@ -148,7 +148,7 @@ router.post('/scan', async (req: Request, res: Response) => {
     })
   } catch (error) {
     console.error('Error during filesystem scan:', error)
-    res.status(500).json({ error: 'Internal server error during scan' })
+    return res.status(500).json({ error: 'Internal server error during scan' })
   }
 })
 
@@ -215,14 +215,14 @@ router.get('/browse', async (req: Request, res: Response) => {
       parentPath = path.relative(settings.library_root_path, parent)
     }
 
-    res.json({
+    return res.json({
       current_path: path.relative(settings.library_root_path, safePath),
       parent_path: parentPath,
       directories,
     })
   } catch (error) {
     console.error('Error browsing directory:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 

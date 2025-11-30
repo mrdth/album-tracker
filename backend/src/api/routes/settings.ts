@@ -27,10 +27,10 @@ router.get('/', async (_req: Request, res: Response) => {
       return res.status(404).json({ error: 'Settings not found' })
     }
 
-    res.json(settings)
+    return res.json(settings)
   } catch (error) {
     console.error('Error fetching settings:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -101,10 +101,10 @@ router.patch('/', async (req: Request, res: Response) => {
 
     const updatedSettings = SettingsRepository.update(filteredUpdates)
 
-    res.json(updatedSettings)
+    return res.json(updatedSettings)
   } catch (error) {
     console.error('Error updating settings:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 

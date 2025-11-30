@@ -155,9 +155,6 @@ export class FilesystemScanner {
   async detectArtistFolder(artistName: string): Promise<string | null> {
     const entries = await this.scan()
 
-    // Normalize artist name for comparison
-    const normalizedName = artistName.toLowerCase()
-
     // Generate variations
     const variations = this.generateArtistNameVariations(artistName)
 

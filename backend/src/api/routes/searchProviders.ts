@@ -37,13 +37,11 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     if (!urlTemplate || typeof urlTemplate !== 'string') {
-      return res
-        .status(400)
-        .json({ error: 'URL template is required and must be a string' })
+      return res.status(400).json({ error: 'URL template is required and must be a string' })
     }
 
     const provider = SearchProviderService.create(name, urlTemplate)
-    res.status(201).json(provider)
+    return res.status(201).json(provider)
   } catch (error) {
     if (error instanceof Error) {
       // Validation errors from the service/repository layer
@@ -51,7 +49,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     console.error('Error creating search provider:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -95,7 +93,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Search provider not found' })
     }
 
-    res.json(provider)
+    return res.json(provider)
   } catch (error) {
     if (error instanceof Error) {
       // Validation errors from the service/repository layer
@@ -103,7 +101,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     console.error('Error updating search provider:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -125,10 +123,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Search provider not found' })
     }
 
-    res.status(204).send()
+    return res.status(204).send()
   } catch (error) {
     console.error('Error deleting search provider:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })
 

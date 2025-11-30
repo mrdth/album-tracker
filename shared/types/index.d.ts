@@ -31,13 +31,22 @@ export interface Album {
     created_at: string;
     updated_at: string;
 }
+export interface SearchProvider {
+    id: number;
+    name: string;
+    urlTemplate: string;
+    createdAt: string;
+    updatedAt: string;
+}
 export interface Settings {
     id: 1;
     library_root_path: string;
     similarity_threshold: number;
     api_rate_limit_ms: number;
     max_api_retries: number;
+    last_scan_at: string | null;
     updated_at: string;
+    search_providers: SearchProvider[];
 }
 export interface FilesystemCacheEntry {
     id: number;

@@ -84,7 +84,7 @@ export function createApiError(
 /**
  * Not Found handler for undefined routes
  */
-export function notFoundHandler(req: Request, res: Response, next: NextFunction): void {
+export function notFoundHandler(req: Request, _res: Response, next: NextFunction): void {
   const error = createApiError(`Route not found: ${req.method} ${req.path}`, 404, 'ROUTE_NOT_FOUND')
   next(error)
 }

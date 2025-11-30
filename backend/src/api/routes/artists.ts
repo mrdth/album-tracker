@@ -132,7 +132,7 @@ router.post(
 
 router.get(
   '/',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     const artists = ArtistRepository.list()
     res.json(artists)
   })
@@ -144,7 +144,7 @@ router.get(
 
 router.get(
   '/stale-check',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     try {
       const result = await refreshService.checkStaleArtists()
       res.json(result)
@@ -157,7 +157,7 @@ router.get(
           'Unable to refresh stale artist: MusicBrainz service unavailable',
           503,
           'EXTERNAL_API_ERROR',
-          { detail: message }
+          message
         )
       }
 
@@ -319,7 +319,7 @@ router.post(
           'Unable to connect to MusicBrainz service',
           503,
           'EXTERNAL_API_ERROR',
-          { detail: message }
+          message
         )
       }
 
