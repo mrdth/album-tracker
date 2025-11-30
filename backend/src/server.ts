@@ -27,7 +27,22 @@ const PORT = process.env.PORT || 3000
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true)
+
+      // Allow configured frontend URL or common development origins
+      const allowedOrigins = [
+        process.env.FRONTEND_URL || 'http://localhost:8175',
+        'http://localhost:5173', // Vite dev server
+      ]
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     credentials: true,
   })
 )

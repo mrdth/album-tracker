@@ -6,7 +6,7 @@
 
 import type { SearchProvider } from '../../../shared/types/index.js'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 export class SearchProviderApiError extends Error {
   constructor(
@@ -43,9 +43,9 @@ export async function createSearchProvider(
   const response = await fetch(`${API_BASE_URL}/settings/search-providers`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name, urlTemplate })
+    body: JSON.stringify({ name, urlTemplate }),
   })
 
   if (!response.ok) {
@@ -66,9 +66,9 @@ export async function updateSearchProvider(
   const response = await fetch(`${API_BASE_URL}/settings/search-providers/${id}`, {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(updates)
+    body: JSON.stringify(updates),
   })
 
   if (!response.ok) {
@@ -84,7 +84,7 @@ export async function updateSearchProvider(
  */
 export async function deleteSearchProvider(id: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/settings/search-providers/${id}`, {
-    method: 'DELETE'
+    method: 'DELETE',
   })
 
   if (!response.ok) {

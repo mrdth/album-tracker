@@ -43,8 +43,6 @@ services:
     container_name: album-tracker-frontend
     ports:
       - "8175:8175"
-    environment:
-      - VITE_API_URL=http://localhost:3035
     depends_on:
       backend:
         condition: service_healthy
