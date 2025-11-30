@@ -19,7 +19,7 @@ const __dirname = dirname(__filename)
 const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
 const DB_PATH = isTestEnv
   ? ':memory:'
-  : process.env.DB_PATH || join(__dirname, '../../album-tracker.db')
+  : process.env.DATABASE_PATH || process.env.DB_PATH || join(__dirname, '../../album-tracker.db')
 const SCHEMA_PATH = join(__dirname, 'schema.sql')
 
 let db: Database.Database | null = null

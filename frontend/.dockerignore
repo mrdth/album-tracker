@@ -1,0 +1,44 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Tests
+tests
+test-results
+playwright-report
+*.test.ts
+*.spec.ts
+coverage
+e2e
+
+# Build artifacts (will be created during build)
+dist
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Temporary files
+*.tmp
+*.log
+.DS_Store
+
+# Vite cache
+.vite

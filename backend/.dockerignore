@@ -1,0 +1,44 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Tests
+tests
+*.test.ts
+*.spec.ts
+coverage
+
+# Build artifacts (will be created during build)
+dist
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Temporary files
+*.tmp
+*.log
+.DS_Store
+
+# Database (should be in volume)
+*.db
+*.db-shm
+*.db-wal
+data/
