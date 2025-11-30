@@ -6,7 +6,7 @@
 
 import { getDatabase, transaction } from '../db/connection.js';
 import { AlbumModel } from '../models/Album.js';
-import type { Album } from '../../../shared/types/index.js';
+import type { Album } from '../shared/types/index.js';
 
 export class AlbumRepository {
   /**

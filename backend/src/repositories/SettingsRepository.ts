@@ -7,7 +7,7 @@
 import { getDatabase } from '../db/connection.js'
 import { SettingsModel } from '../models/Settings.js'
 import { SearchProviderModel } from '../models/SearchProvider.js'
-import type { Settings, SearchProvider } from '../../../shared/types/index.js'
+import type { Settings, SearchProvider } from '../shared/types/index.js'
 
 export class SettingsRepository {
   /**

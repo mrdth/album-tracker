@@ -5,7 +5,7 @@
  */
 
 import { SettingsRepository } from '../repositories/SettingsRepository.js'
-import type { SearchProvider } from '../../../shared/types/index.js'
+import type { SearchProvider } from '../shared/types/index.js'
 
 export class SearchProviderService {
   /**

@@ -12,9 +12,11 @@ COPY backend/package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Copy backend source and shared types
+# Copy shared types first
+COPY shared/ ./src/shared/
+
+# Copy backend source
 COPY backend/ ./
-COPY shared/ ../shared/
 
 # Build TypeScript
 RUN npm run build

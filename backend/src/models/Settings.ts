@@ -4,7 +4,7 @@
  * Singleton model for application configuration
  */
 
-import type { Settings, SearchProvider } from '../../../shared/types/index.js'
+import type { Settings, SearchProvider } from '../shared/types/index.js'
 
 export class SettingsModel implements Settings {
   id: 1 = 1 // Always 1 (singleton)

@@ -4,7 +4,7 @@
  * Model for user-configured search providers for missing albums
  */
 
-import type { SearchProvider } from '../../../shared/types/index.js'
+import type { SearchProvider } from '../shared/types/index.js'
 import { validateUrlTemplate } from '../utils/urlTemplate.js'
 
 /**

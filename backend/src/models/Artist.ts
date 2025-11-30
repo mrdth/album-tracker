@@ -4,7 +4,7 @@
  * Represents a music artist imported from MusicBrainz
  */
 
-import type { Artist } from '../../../shared/types/index.js';
+import type { Artist } from '../shared/types/index.js';
 
 export class ArtistModel implements Artist {
   id: number;

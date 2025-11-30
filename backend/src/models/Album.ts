@@ -4,7 +4,7 @@
  * Represents an album (release-group) belonging to an artist with ownership tracking
  */
 
-import type { Album } from '../../../shared/types/index.js';
+import type { Album } from '../shared/types/index.js';
 
 export class AlbumModel implements Album {
   id: number;
