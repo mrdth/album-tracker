@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { Album } from '../../../../shared/types/index.js'
+import { useSearchProviders } from '../../composables/useSearchProviders'
 
 interface Props {
   album: Album
+  artistName: string
 }
 
 const props = defineProps<Props>()
@@ -12,6 +15,33 @@ const emit = defineEmits<{
   toggleOwnership: [albumId: number]
   clearOverride: [albumId: number]
 }>()
+
+// Search providers
+const { providers } = useSearchProviders()
+const showSearchDropdown = ref(false)
+
+// Check if search dropdown should be shown (only for missing albums with providers)
+const shouldShowSearchDropdown = computed(() => {
+  return props.album.ownership_status === 'Missing' && providers.value.length > 0
+})
+
+/**
+ * Build search URL from template by replacing {artist} and {album} placeholders
+ */
+function buildSearchUrl(urlTemplate: string): string {
+  return urlTemplate
+    .replace(/{artist}/g, encodeURIComponent(props.artistName))
+    .replace(/{album}/g, encodeURIComponent(props.album.title))
+}
+
+/**
+ * Handle search provider click - opens URL in new tab
+ */
+function handleSearch(urlTemplate: string) {
+  const searchUrl = buildSearchUrl(urlTemplate)
+  window.open(searchUrl, '_blank', 'noopener,noreferrer')
+  showSearchDropdown.value = false
+}
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -92,6 +122,49 @@ function handleClearOverride() {
 
     <!-- Action buttons -->
     <div class="mt-4 flex flex-wrap gap-2">
+      <!-- Search Dropdown (only for missing albums with providers) -->
+      <div v-if="shouldShowSearchDropdown" class="relative" data-testid="search-dropdown-container">
+        <button
+          type="button"
+          data-testid="search-dropdown-button"
+          class="px-3 py-1.5 text-xs font-medium text-white bg-purple-600 rounded hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center gap-1"
+          @click="showSearchDropdown = !showSearchDropdown"
+          :aria-expanded="showSearchDropdown"
+          aria-haspopup="true"
+        >
+          Search
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div
+          v-if="showSearchDropdown"
+          data-testid="search-dropdown-menu"
+          class="absolute left-0 mt-1 w-56 bg-white rounded-md shadow-lg z-10 border border-gray-200 max-h-60 overflow-auto"
+          role="menu"
+        >
+          <a
+            v-for="provider in providers"
+            :key="provider.id"
+            :href="buildSearchUrl(provider.urlTemplate)"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="search-provider-link"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-900 cursor-pointer"
+            role="menuitem"
+            @click.prevent="handleSearch(provider.urlTemplate)"
+          >
+            {{ provider.name }}
+          </a>
+        </div>
+      </div>
+
       <!-- Link Folder button -->
       <button
         v-if="album.ownership_status !== 'Owned'"

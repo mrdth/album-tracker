@@ -259,6 +259,7 @@ onMounted(() => {
 
         <AlbumGrid
           :albums="albums"
+          :artist-name="artist.name"
           @link-folder="handleLinkFolder"
           @toggle-ownership="handleToggleOwnership"
           @clear-override="handleClearOverride"

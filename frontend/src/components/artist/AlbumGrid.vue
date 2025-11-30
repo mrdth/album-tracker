@@ -4,6 +4,7 @@ import AlbumCard from './AlbumCard.vue'
 
 interface Props {
   albums: Album[]
+  artistName: string
 }
 
 defineProps<Props>()
@@ -31,6 +32,7 @@ const emit = defineEmits<{
         v-for="album in albums"
         :key="album.id"
         :album="album"
+        :artist-name="artistName"
         @link-folder="emit('linkFolder', $event)"
         @toggle-ownership="emit('toggleOwnership', $event)"
         @clear-override="emit('clearOverride', $event)"

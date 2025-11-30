@@ -95,10 +95,10 @@ This is a web application with monorepo structure:
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Extend AlbumCard component in frontend/src/components/artist/AlbumCard.vue to import useSearchProviders composable
-- [ ] T028 [US2] Add buildSearchUrl function to AlbumCard component for client-side URL construction
-- [ ] T029 [US2] Add search dropdown UI to AlbumCard component (button + dropdown menu) with conditional rendering for missing albums and when providers exist
-- [ ] T030 [US2] Implement dropdown click handlers to open search URLs in new tabs with window.open(url, '_blank', 'noopener,noreferrer')
+- [x] T027 [US2] Extend AlbumCard component in frontend/src/components/artist/AlbumCard.vue to import useSearchProviders composable
+- [x] T028 [US2] Add buildSearchUrl function to AlbumCard component for client-side URL construction
+- [x] T029 [US2] Add search dropdown UI to AlbumCard component (button + dropdown menu) with conditional rendering for missing albums and when providers exist
+- [x] T030 [US2] Implement dropdown click handlers to open search URLs in new tabs with window.open(url, '_blank', 'noopener,noreferrer')
 - [ ] T031 [P] [US2] Write E2E test for search flow in frontend/tests/e2e/searchProviders.spec.ts (configure provider → view missing album → click search → verify URL)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - users can configure providers and search for missing albums
