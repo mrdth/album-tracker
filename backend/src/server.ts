@@ -18,7 +18,7 @@ import filesystemRouter from './api/routes/filesystem.js'
 import albumsRouter from './api/routes/albums.js'
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3035
 
 // ============================================================================
 // Middleware
