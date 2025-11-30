@@ -56,6 +56,16 @@ fi
 echo -e "${GREEN}✓ Configuration verified${NC}"
 echo ""
 
+# Prepare shared types for backend
+echo "Preparing shared types for backend..."
+if [ -d "backend/src/shared" ]; then
+    rm -rf backend/src/shared
+fi
+cp -r shared backend/src/
+
+echo -e "${GREEN}✓ Shared types prepared${NC}"
+echo ""
+
 # Build and start services
 echo "Building Docker images..."
 docker-compose build
