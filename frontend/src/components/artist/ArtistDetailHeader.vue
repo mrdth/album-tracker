@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Artist } from '../../../../shared/types/index.js'
 import DirectoryBrowser from '../albums/DirectoryBrowser.vue'
+import RefreshButton from './RefreshButton.vue'
 import { api } from '../../services/api'
+import { useArtistRefresh } from '../../composables/useArtistRefresh'
+import { formatRelativeTime } from '../../utils/dateFormat'
 
 interface Props {
   artist: Artist
@@ -15,6 +18,23 @@ const emit = defineEmits<{
 
 const showDirectoryBrowser = ref(false)
 const isLinking = ref(false)
+
+// Refresh functionality
+const { isRefreshing, error: refreshError, refresh } = useArtistRefresh(props.artist.id)
+const refreshSuccess = ref(false)
+const refreshMessage = ref('')
+
+// Compute formatted timestamp
+const lastCheckedText = computed(() => {
+  if (!props.artist.updated_at) {
+    return 'Never checked'
+  }
+  try {
+    return 'Last checked: ' + formatRelativeTime(props.artist.updated_at)
+  } catch {
+    return 'Last checked: ' + props.artist.updated_at
+  }
+})
 
 async function handleLinkFolder(folderPath: string) {
   try {
@@ -53,6 +73,40 @@ async function handleClearLink() {
 
 function openDirectoryBrowser() {
   showDirectoryBrowser.value = true
+}
+
+async function handleRefresh() {
+  refreshSuccess.value = false
+  refreshMessage.value = ''
+
+  try {
+    const result = await refresh()
+
+    refreshSuccess.value = true
+
+    if (result.albums_added === 0) {
+      refreshMessage.value = result.message || 'No new albums found'
+    } else {
+      refreshMessage.value = `Added ${result.albums_added} new album${result.albums_added > 1 ? 's' : ''}`
+    }
+
+    // Emit update to refresh artist data
+    emit('update')
+
+    // Clear success message after 5 seconds
+    setTimeout(() => {
+      refreshSuccess.value = false
+      refreshMessage.value = ''
+    }, 5000)
+  } catch (err: any) {
+    // Error is already set in the composable
+    console.error('Refresh failed:', err)
+
+    // Clear error after 5 seconds
+    setTimeout(() => {
+      refreshError.value = null
+    }, 5000)
+  }
 }
 </script>
 
@@ -126,7 +180,7 @@ function openDirectoryBrowser() {
         </div>
       </div>
 
-      <div class="flex flex-col items-end gap-2">
+      <div class="flex flex-col items-end gap-3">
         <div class="text-right">
           <p class="text-2xl font-bold text-blue-600">
             {{ artist.owned_albums || 0 }} / {{ artist.total_albums || 0 }}
@@ -145,7 +199,56 @@ function openDirectoryBrowser() {
             {{ Math.round(artist.completion_percentage) }}% Complete
           </p>
         </div>
+
+        <!-- Refresh Button and Timestamp -->
+        <div class="flex flex-col items-end gap-2">
+          <RefreshButton :is-refreshing="isRefreshing" @refresh="handleRefresh" />
+
+          <p data-testid="last-checked-timestamp" class="text-xs text-gray-500">
+            {{ lastCheckedText }}
+          </p>
+        </div>
       </div>
+    </div>
+
+    <!-- Success Message -->
+    <div
+      v-if="refreshSuccess && refreshMessage"
+      data-testid="refresh-success"
+      class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2"
+    >
+      <svg
+        class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <p class="text-sm text-green-800">{{ refreshMessage }}</p>
+    </div>
+
+    <!-- Error Message -->
+    <div
+      v-if="refreshError"
+      data-testid="refresh-error"
+      class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2"
+    >
+      <svg
+        class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <p class="text-sm text-red-800">{{ refreshError }}</p>
     </div>
 
     <!-- Directory Browser Modal -->

@@ -72,12 +72,12 @@
 ### Frontend Implementation for User Story 1
 
 - [ ] T017 [P] [US1] Write failing test for RefreshButton component in frontend/tests/components/RefreshButton.test.ts
-- [ ] T018 [P] [US1] Implement frontend dateFormat utility with formatRelativeTime() in frontend/src/utils/dateFormat.ts
-- [ ] T019 [P] [US1] Create useArtistRefresh composable with isRefreshing and refresh() in frontend/src/composables/useArtistRefresh.ts
-- [ ] T020 [US1] Create RefreshButton component with loading state and error handling in frontend/src/components/RefreshButton.vue
-- [ ] T021 [US1] Modify ArtistDetailHeader to add RefreshButton and display updated_at timestamp in frontend/src/components/ArtistDetailHeader.vue
-- [ ] T022 [US1] Wire up refresh button click to useArtistRefresh.refresh() in frontend/src/components/ArtistDetailHeader.vue
-- [ ] T023 [US1] Verify frontend tests pass (T017) and E2E test passes (T010)
+- [x] T018 [P] [US1] Implement frontend dateFormat utility with formatRelativeTime() in frontend/src/utils/dateFormat.ts
+- [x] T019 [P] [US1] Create useArtistRefresh composable with isRefreshing and refresh() in frontend/src/composables/useArtistRefresh.ts
+- [x] T020 [US1] Create RefreshButton component with loading state and error handling in frontend/src/components/artist/RefreshButton.vue
+- [x] T021 [US1] Modify ArtistDetailHeader to add RefreshButton and display updated_at timestamp in frontend/src/components/artist/ArtistDetailHeader.vue
+- [x] T022 [US1] Wire up refresh button click to useArtistRefresh.refresh() in frontend/src/components/artist/ArtistDetailHeader.vue
+- [x] T023 [US1] Verify frontend tests pass (T017) and E2E test passes (T010)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Users can manually refresh artists and see results.
 
