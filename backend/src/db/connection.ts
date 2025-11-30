@@ -64,13 +64,20 @@ function initializeSchema(database: Database.Database): void {
  * Run database migrations for schema updates
  */
 function runMigrations(database: Database.Database): void {
-  // Migration: Add last_scan_at column to Settings table if it doesn't exist
   const columns = database.pragma('table_info(Settings)') as Array<{ name: string }>
-  const hasLastScanAt = columns.some(col => col.name === 'last_scan_at')
 
+  // Migration: Add last_scan_at column to Settings table if it doesn't exist
+  const hasLastScanAt = columns.some(col => col.name === 'last_scan_at')
   if (!hasLastScanAt) {
     database.exec('ALTER TABLE Settings ADD COLUMN last_scan_at TEXT')
     console.log('[DB] Migration: Added last_scan_at column to Settings table')
+  }
+
+  // Migration: Add search_providers column to Settings table if it doesn't exist
+  const hasSearchProviders = columns.some(col => col.name === 'search_providers')
+  if (!hasSearchProviders) {
+    database.exec("ALTER TABLE Settings ADD COLUMN search_providers TEXT NOT NULL DEFAULT '[]'")
+    console.log('[DB] Migration: Added search_providers column to Settings table')
   }
 }
 

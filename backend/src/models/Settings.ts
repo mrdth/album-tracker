@@ -4,7 +4,7 @@
  * Singleton model for application configuration
  */
 
-import type { Settings } from '../../../shared/types/index.js'
+import type { Settings, SearchProvider } from '../../../shared/types/index.js'
 
 export class SettingsModel implements Settings {
   id: 1 = 1 // Always 1 (singleton)
@@ -14,6 +14,7 @@ export class SettingsModel implements Settings {
   max_api_retries: number
   last_scan_at: string | null
   updated_at: string
+  search_providers: SearchProvider[]
 
   constructor(data: Settings) {
     this.id = 1
@@ -23,6 +24,7 @@ export class SettingsModel implements Settings {
     this.max_api_retries = data.max_api_retries
     this.last_scan_at = data.last_scan_at
     this.updated_at = data.updated_at
+    this.search_providers = data.search_providers || []
   }
 
   /**

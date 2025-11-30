@@ -26,9 +26,9 @@ This is a web application with monorepo structure:
 
 **Purpose**: Database migration and shared type definitions needed by all user stories
 
-- [ ] T001 Run database migration to add search_providers column to Settings table per data-model.md
-- [ ] T002 [P] Add SearchProvider interface to shared/types/index.ts with fields: id, name, urlTemplate, createdAt, updatedAt
-- [ ] T003 [P] Extend Settings interface in shared/types/index.ts to include search_providers: SearchProvider[] field
+- [x] T001 Run database migration to add search_providers column to Settings table per data-model.md
+- [x] T002 [P] Add SearchProvider interface to shared/types/index.ts with fields: id, name, urlTemplate, createdAt, updatedAt
+- [x] T003 [P] Extend Settings interface in shared/types/index.ts to include search_providers: SearchProvider[] field
 
 ---
 

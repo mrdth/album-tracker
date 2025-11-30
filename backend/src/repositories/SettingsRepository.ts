@@ -15,13 +15,25 @@ export class SettingsRepository {
   static get(): SettingsModel {
     const db = getDatabase()
 
-    const row = db.prepare('SELECT * FROM Settings WHERE id = 1').get() as Settings | undefined
+    const row = db.prepare('SELECT * FROM Settings WHERE id = 1').get() as any
 
     if (!row) {
       throw new Error('Settings not initialized. Database may be corrupted.')
     }
 
-    return new SettingsModel(row)
+    // Parse search_providers JSON field
+    if (row.search_providers && typeof row.search_providers === 'string') {
+      try {
+        row.search_providers = JSON.parse(row.search_providers)
+      } catch (e) {
+        console.error('Failed to parse search_providers JSON:', e)
+        row.search_providers = []
+      }
+    } else {
+      row.search_providers = []
+    }
+
+    return new SettingsModel(row as Settings)
   }
 
   /**
