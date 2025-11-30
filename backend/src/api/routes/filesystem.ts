@@ -5,13 +5,13 @@
  */
 
 import { Router, Request, Response } from 'express'
-import { FilesystemScanner } from '../../services/FilesystemScanner'
-import { AlbumMatcher } from '../../services/AlbumMatcher'
-import { FilesystemCacheRepository } from '../../repositories/FilesystemCacheRepository'
-import { ArtistRepository } from '../../repositories/ArtistRepository'
-import { AlbumRepository } from '../../repositories/AlbumRepository'
-import { SettingsRepository } from '../../repositories/SettingsRepository'
-import { safeResolvePath } from '../../utils/pathValidation'
+import { FilesystemScanner } from '../../services/FilesystemScanner.js'
+import { AlbumMatcher } from '../../services/AlbumMatcher.js'
+import { FilesystemCacheRepository } from '../../repositories/FilesystemCacheRepository.js'
+import { ArtistRepository } from '../../repositories/ArtistRepository.js'
+import { AlbumRepository } from '../../repositories/AlbumRepository.js'
+import { SettingsRepository } from '../../repositories/SettingsRepository.js'
+import { safeResolvePath } from '../../utils/pathValidation.js'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 

@@ -6,7 +6,7 @@
  */
 
 import Fuse from 'fuse.js'
-import { FilesystemCacheEntry } from '../models/FilesystemCache'
+import { FilesystemCacheEntry } from '../models/FilesystemCache.js'
 
 export interface AlbumMatchInput {
   mbid: string

@@ -6,8 +6,8 @@
  */
 
 import { Database } from 'better-sqlite3'
-import { getDatabase } from '../db/connection'
-import { FilesystemCacheEntry, CreateFilesystemCacheEntry } from '../models/FilesystemCache'
+import { getDatabase } from '../db/connection.js'
+import { FilesystemCacheEntry, CreateFilesystemCacheEntry } from '../models/FilesystemCache.js'
 
 export class FilesystemCacheRepository {
   private db: Database

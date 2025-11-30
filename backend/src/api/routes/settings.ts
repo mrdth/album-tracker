@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express'
-import { SettingsRepository } from '../../repositories/SettingsRepository'
+import { SettingsRepository } from '../../repositories/SettingsRepository.js'
 import searchProvidersRouter from './searchProviders.js'
 import * as fs from 'fs/promises'
 import * as path from 'path'

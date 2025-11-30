@@ -7,8 +7,8 @@
 
 import * as fs from 'fs/promises'
 import * as path from 'path'
-import { CreateFilesystemCacheEntry } from '../models/FilesystemCache'
-import { safeResolvePath } from '../utils/pathValidation'
+import { CreateFilesystemCacheEntry } from '../models/FilesystemCache.js'
+import { safeResolvePath } from '../utils/pathValidation.js'
 
 export interface ParsedFolder {
   year: number | null
