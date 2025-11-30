@@ -25,27 +25,39 @@ const PORT = process.env.PORT || 3000
 // ============================================================================
 
 // CORS configuration
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true)
+// In production behind nginx proxy, allow all origins since nginx handles the actual client requests
+// In development, restrict to known origins
+const corsOptions = process.env.NODE_ENV === 'production'
+  ? {
+      origin: true, // Allow all origins in production (behind nginx proxy)
+      credentials: true,
+    }
+  : {
+      origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // Log the origin for debugging
+        console.log(`[CORS] Request from origin: ${origin || 'no origin'}`)
 
-      // Allow configured frontend URL or common development origins
-      const allowedOrigins = [
-        process.env.FRONTEND_URL || 'http://localhost:8175',
-        'http://localhost:5173', // Vite dev server
-      ]
+        // Allow requests with no origin
+        if (!origin) return callback(null, true)
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true)
-      } else {
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
-    credentials: true,
-  })
-)
+        // Allow development origins
+        const allowedOrigins = [
+          'http://localhost:5173', // Vite dev server
+          'http://localhost:8175', // Production-like testing
+        ]
+
+        if (allowedOrigins.includes(origin)) {
+          console.log(`[CORS] Allowed origin: ${origin}`)
+          callback(null, true)
+        } else {
+          console.log(`[CORS] Rejected origin: ${origin}`)
+          callback(new Error('Not allowed by CORS'))
+        }
+      },
+      credentials: true,
+    }
+
+app.use(cors(corsOptions))
 
 // JSON body parser
 app.use(express.json())
