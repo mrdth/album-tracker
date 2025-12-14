@@ -81,7 +81,7 @@ export class ArtistRepository {
             END AS INTEGER
           ) AS completion_percentage
         FROM Artist a
-        LEFT JOIN Album al ON al.artist_id = a.id
+        LEFT JOIN Album al ON al.artist_id = a.id AND al.is_ignored = 0
         WHERE a.id = ?
         GROUP BY a.id
       `
@@ -112,7 +112,7 @@ export class ArtistRepository {
             END AS INTEGER
           ) AS completion_percentage
         FROM Artist a
-        LEFT JOIN Album al ON al.artist_id = a.id
+        LEFT JOIN Album al ON al.artist_id = a.id AND al.is_ignored = 0
         GROUP BY a.id
         ORDER BY a.name COLLATE NOCASE
       `
@@ -214,7 +214,7 @@ export class ArtistRepository {
             END AS INTEGER
           ) AS completion_percentage
         FROM Artist a
-        LEFT JOIN Album al ON al.artist_id = a.id
+        LEFT JOIN Album al ON al.artist_id = a.id AND al.is_ignored = 0
         GROUP BY a.id
         ORDER BY a.updated_at ASC
         LIMIT 1

@@ -170,6 +170,26 @@ export const api = {
     })
   },
 
+  /**
+   * Mark album as ignored
+   */
+  async ignoreAlbum(albumId: number): Promise<Album> {
+    return apiRequest<Album>(`/albums/${albumId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_ignored: true }),
+    })
+  },
+
+  /**
+   * Un-ignore album (mark as not ignored)
+   */
+  async unignoreAlbum(albumId: number): Promise<Album> {
+    return apiRequest<Album>(`/albums/${albumId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_ignored: false }),
+    })
+  },
+
   // ============================================================================
   // Settings
   // ============================================================================

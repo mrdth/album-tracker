@@ -10,6 +10,7 @@ import ErrorMessage from '../components/common/ErrorMessage.vue'
 import DirectoryBrowser from '../components/albums/DirectoryBrowser.vue'
 import { useFilesystemScan } from '../composables/useFilesystemScan'
 import { useDirectoryBrowser } from '../composables/useDirectoryBrowser'
+import { useAlbumFilter } from '../composables/useAlbumFilter.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,6 +22,22 @@ const albums = ref<Album[]>([])
 const settings = ref<Settings | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
+
+// Album filtering functionality
+const {
+  includeIgnored,
+  filterAlbums,
+  countVisibleAlbums,
+  countVisibleOwnedAlbums,
+  hasIgnoredAlbums,
+  toggleIncludeIgnored,
+} = useAlbumFilter()
+
+// Computed properties for filtered albums and statistics
+const filteredAlbums = computed(() => filterAlbums(albums.value))
+const visibleAlbumCount = computed(() => countVisibleAlbums(albums.value))
+const visibleOwnedCount = computed(() => countVisibleOwnedAlbums(albums.value))
+const hasIgnored = computed(() => hasIgnoredAlbums(albums.value))
 
 const { scanning, scanResult, scanError, scanProgress, triggerScan, resetScan } =
   useFilesystemScan()
@@ -157,6 +174,32 @@ const handleClearOverride = async (albumId: number) => {
   }
 }
 
+const handleIgnoreAlbum = async (albumId: number) => {
+  try {
+    await api.ignoreAlbum(albumId)
+    // Reload artist data to get updated album
+    await loadArtist()
+  } catch (err) {
+    console.error('Failed to ignore album:', err)
+    if (err instanceof ApiError && err.code === 'CANNOT_IGNORE_OWNED') {
+      error.value = 'Cannot ignore owned albums'
+    } else {
+      error.value = 'Failed to ignore album'
+    }
+  }
+}
+
+const handleUnignoreAlbum = async (albumId: number) => {
+  try {
+    await api.unignoreAlbum(albumId)
+    // Reload artist data to get updated album
+    await loadArtist()
+  } catch (err) {
+    console.error('Failed to un-ignore album:', err)
+    error.value = 'Failed to un-ignore album'
+  }
+}
+
 onMounted(() => {
   if (isNaN(artistId) || artistId <= 0) {
     error.value = 'Invalid artist ID'
@@ -258,12 +301,44 @@ onMounted(() => {
           <h2 class="text-2xl font-semibold text-gray-900">Discography</h2>
         </div>
 
+        <!-- Album Filtering Controls -->
+        <div v-if="hasIgnored" class="mb-6 p-4 bg-white rounded-lg shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Album Filters</h3>
+              <p class="text-sm text-gray-600">
+                Showing {{ visibleAlbumCount }} of {{ albums.length }} albums ({{
+                  visibleOwnedCount
+                }}
+                owned{{
+                  visibleOwnedCount !== albums.filter(a => a.ownership_status === 'Owned').length
+                    ? `, ${albums.filter(a => a.ownership_status === 'Owned').length - visibleOwnedCount} ignored`
+                    : ''
+                }})
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  :checked="includeIgnored"
+                  @change="toggleIncludeIgnored"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span class="text-sm text-gray-700">Show Ignored Albums</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <AlbumGrid
-          :albums="albums"
+          :albums="filteredAlbums"
           :artist-name="artist.name"
           @link-folder="handleLinkFolder"
           @toggle-ownership="handleToggleOwnership"
           @clear-override="handleClearOverride"
+          @ignore-album="handleIgnoreAlbum"
+          @unignore-album="handleUnignoreAlbum"
         />
       </div>
     </div>

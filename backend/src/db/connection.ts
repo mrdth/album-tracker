@@ -87,15 +87,8 @@ function runMigrations(database: Database.Database): void {
     database.exec('ALTER TABLE Album ADD COLUMN is_ignored INTEGER NOT NULL DEFAULT 0')
     console.log('[DB] Migration: Added is_ignored column to Album table')
 
-    // Add constraint for is_ignored column
-    database.exec('ALTER TABLE Album ADD CONSTRAINT chk_is_ignored CHECK (is_ignored IN (0, 1))')
-    console.log('[DB] Migration: Added chk_is_ignored constraint to Album table')
-
-    // Add constraint to prevent owned albums from being ignored
-    database.exec(
-      "ALTER TABLE Album ADD CONSTRAINT chk_owned_not_ignored CHECK (ownership_status != 'Owned' OR is_ignored = 0)"
-    )
-    console.log('[DB] Migration: Added chk_owned_not_ignored constraint to Album table')
+    // Note: SQLite doesn't support adding constraints to existing tables via ALTER TABLE
+    // Constraints are enforced at the application level in AlbumRepository.setIgnored()
 
     // Create index for ignored albums
     database.exec(

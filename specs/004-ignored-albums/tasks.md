@@ -81,17 +81,17 @@
 
 ### Implementation for User Story 1 (Frontend)
 
-- [ ] T023 [P] [US1] Create useAlbumFilter composable in frontend/src/composables/useAlbumFilter.ts (URL query state management)
-- [ ] T024 [P] [US1] Add ignoreAlbum() method to API client in frontend/src/services/api.ts
-- [ ] T025 [P] [US1] Add unignoreAlbum() method to API client in frontend/src/services/api.ts
-- [ ] T026 [US1] Update AlbumCard component in frontend/src/components/albums/AlbumCard.vue (add Ignore button, visual indicators)
-- [ ] T027 [US1] Update ArtistDetail page in frontend/src/views/ArtistDetailPage.vue (add filtering logic, handle ignore events)
-- [ ] T028 [US1] Update artist count displays to exclude ignored albums in relevant components
+- [X] T023 [P] [US1] Create useAlbumFilter composable in frontend/src/composables/useAlbumFilter.ts (URL query state management)
+- [X] T024 [P] [US1] Add ignoreAlbum() method to API client in frontend/src/services/api.ts
+- [X] T025 [P] [US1] Add unignoreAlbum() method to API client in frontend/src/services/api.ts
+- [X] T026 [US1] Update AlbumCard component in frontend/src/components/albums/AlbumCard.vue (add Ignore button, visual indicators)
+- [X] T027 [US1] Update ArtistDetail page in frontend/src/views/ArtistDetailPage.vue (add filtering logic, handle ignore events)
+- [X] T028 [US1] Update artist count displays to exclude ignored albums in relevant components
 
 ### E2E Test for User Story 1
 
-- [ ] T029 [US1] Write E2E test for ignore workflow in e2e/ignore-albums.spec.ts (mark ignored, verify hidden, check statistics)
-- [ ] T030 [US1] Run E2E test to verify User Story 1 complete workflow
+- [X] T029 [US1] Write E2E test for ignore workflow in e2e/ignore-albums.spec.ts (mark ignored, verify hidden, check statistics)
+- [X] T030 [US1] Run E2E test to verify User Story 1 complete workflow
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

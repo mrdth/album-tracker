@@ -13,6 +13,8 @@ const emit = defineEmits<{
   linkFolder: [albumId: number]
   toggleOwnership: [albumId: number]
   clearOverride: [albumId: number]
+  ignoreAlbum: [albumId: number]
+  unignoreAlbum: [albumId: number]
 }>()
 </script>
 
@@ -36,6 +38,8 @@ const emit = defineEmits<{
         @link-folder="emit('linkFolder', $event)"
         @toggle-ownership="emit('toggleOwnership', $event)"
         @clear-override="emit('clearOverride', $event)"
+        @ignore-album="emit('ignoreAlbum', $event)"
+        @unignore-album="emit('unignoreAlbum', $event)"
       />
     </div>
 

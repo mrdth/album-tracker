@@ -14,6 +14,8 @@ const emit = defineEmits<{
   linkFolder: [albumId: number]
   toggleOwnership: [albumId: number]
   clearOverride: [albumId: number]
+  ignoreAlbum: [albumId: number]
+  unignoreAlbum: [albumId: number]
 }>()
 
 // Search providers
@@ -67,23 +69,50 @@ function handleToggleOwnership() {
 function handleClearOverride() {
   emit('clearOverride', props.album.id)
 }
+
+function handleIgnoreAlbum() {
+  emit('ignoreAlbum', props.album.id)
+}
+
+function handleUnignoreAlbum() {
+  emit('unignoreAlbum', props.album.id)
+}
 </script>
 
 <template>
-  <div class="card hover:shadow-lg transition-shadow" data-testid="album-card">
+  <div
+    class="card hover:shadow-lg transition-shadow"
+    :class="{ 'opacity-50': album.is_ignored }"
+    data-testid="album-card"
+  >
     <div class="flex items-start justify-between mb-2">
-      <h3 class="text-lg font-semibold text-gray-900 flex-1" data-testid="album-title">
+      <h3
+        class="text-lg font-semibold text-gray-900 flex-1"
+        :class="{ 'line-through text-gray-500': album.is_ignored }"
+        data-testid="album-title"
+      >
         {{ album.title }}
       </h3>
-      <span
-        data-testid="ownership-status"
-        :class="[
-          'px-2 py-1 rounded-full text-xs font-medium ml-2',
-          getStatusBadge(album.ownership_status),
-        ]"
-      >
-        {{ album.ownership_status }}
-      </span>
+      <div class="flex items-center gap-2 ml-2">
+        <!-- Ignored indicator badge -->
+        <span
+          v-if="album.is_ignored"
+          data-testid="ignored-indicator"
+          class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
+        >
+          Ignored
+        </span>
+        <!-- Ownership status badge -->
+        <span
+          data-testid="ownership-status"
+          :class="[
+            'px-2 py-1 rounded-full text-xs font-medium',
+            getStatusBadge(album.ownership_status),
+          ]"
+        >
+          {{ album.ownership_status }}
+        </span>
+      </div>
     </div>
 
     <div class="text-sm text-gray-600 space-y-1">
@@ -185,6 +214,28 @@ function handleClearOverride() {
         @click="handleToggleOwnership"
       >
         Toggle Ownership
+      </button>
+
+      <!-- Ignore/Un-ignore button (only show for unowned albums) -->
+      <button
+        v-if="album.ownership_status !== 'Owned' && !album.is_ignored"
+        type="button"
+        data-testid="ignore-album-button"
+        class="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+        @click="handleIgnoreAlbum"
+      >
+        Ignore
+      </button>
+
+      <!-- Un-ignore button (only show for ignored unowned albums) -->
+      <button
+        v-if="album.ownership_status !== 'Owned' && album.is_ignored"
+        type="button"
+        data-testid="unignore-album-button"
+        class="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+        @click="handleUnignoreAlbum"
+      >
+        Un-ignore
       </button>
 
       <!-- Clear Override button (only show if manual override) -->
