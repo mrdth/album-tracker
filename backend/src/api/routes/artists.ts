@@ -195,7 +195,9 @@ router.get(
       throw createApiError('Artist not found', 404, 'ARTIST_NOT_FOUND')
     }
 
-    const albums = AlbumRepository.findByArtistId(artistId)
+    // Support includeIgnored query parameter
+    const includeIgnored = req.query.includeIgnored === 'true'
+    const albums = AlbumRepository.findByArtistId(artistId, includeIgnored)
 
     res.json({
       ...artist,

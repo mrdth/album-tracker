@@ -31,6 +31,7 @@ export interface Album {
   matched_folder_path: string | null;
   match_confidence: number | null; // 0.0-1.0
   is_manual_override: boolean;
+  is_ignored: boolean;
   created_at: string; // ISO 8601
   updated_at: string; // ISO 8601
 }

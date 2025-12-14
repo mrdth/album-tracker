@@ -79,6 +79,14 @@ function runMigrations(database: Database.Database): void {
     database.exec("ALTER TABLE Settings ADD COLUMN search_providers TEXT NOT NULL DEFAULT '[]'")
     console.log('[DB] Migration: Added search_providers column to Settings table')
   }
+
+  // Migration: Add is_ignored column to Album table if it doesn't exist
+  const albumColumns = database.pragma('table_info(Album)') as Array<{ name: string }>
+  const hasIsIgnored = albumColumns.some(col => col.name === 'is_ignored')
+  if (!hasIsIgnored) {
+    database.exec('ALTER TABLE Album ADD COLUMN is_ignored INTEGER NOT NULL DEFAULT 0')
+    console.log('[DB] Migration: Added is_ignored column to Album table')
+  }
 }
 
 /**

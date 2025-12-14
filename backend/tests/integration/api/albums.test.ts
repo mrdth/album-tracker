@@ -219,4 +219,126 @@ describe('Albums API Contract Tests', () => {
       expect(response.body.error).toMatch(/no.*fields/i)
     })
   })
+
+  describe('PATCH /api/albums/:albumId - is_ignored field', () => {
+    it('should ignore a Missing album', async () => {
+      const response = await request(app)
+        .patch(`/api/albums/${testAlbumId1}`)
+        .send({ is_ignored: true })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body).toHaveProperty('id', testAlbumId1)
+      expect(response.body).toHaveProperty('is_ignored', true)
+      expect(response.body).toHaveProperty('ownership_status', 'Missing')
+    })
+
+    it('should un-ignore an ignored album', async () => {
+      // First ignore it
+      await request(app).patch(`/api/albums/${testAlbumId1}`).send({ is_ignored: true }).expect(200)
+
+      // Then un-ignore
+      const response = await request(app)
+        .patch(`/api/albums/${testAlbumId1}`)
+        .send({ is_ignored: false })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body).toHaveProperty('is_ignored', false)
+    })
+
+    it('should return 403 when attempting to ignore Owned album', async () => {
+      // First create an owned album
+      await request(app)
+        .patch(`/api/albums/${testAlbumId1}`)
+        .send({ matched_folder_path: 'TestArtist/[2020] Test Album' })
+        .expect(200)
+
+      // Try to ignore it
+      const response = await request(app)
+        .patch(`/api/albums/${testAlbumId1}`)
+        .send({ is_ignored: true })
+        .expect('Content-Type', /json/)
+        .expect(403)
+
+      expect(response.body).toHaveProperty('error')
+      expect(response.body.error).toMatch(/cannot ignore owned albums/i)
+      expect(response.body).toHaveProperty('code', 'CANNOT_IGNORE_OWNED')
+    })
+
+    it('should return 400 when is_ignored is not a boolean', async () => {
+      const response = await request(app)
+        .patch(`/api/albums/${testAlbumId1}`)
+        .send({ is_ignored: 'not-a-boolean' })
+        .expect('Content-Type', /json/)
+        .expect(400)
+
+      expect(response.body).toHaveProperty('error')
+      // Validation middleware returns "Validation failed"
+      expect(response.body.error).toMatch(/validation failed/i)
+    })
+
+    it('should allow ignoring Ambiguous albums', async () => {
+      const response = await request(app)
+        .patch(`/api/albums/${testAlbumId2}`)
+        .send({ is_ignored: true })
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body).toHaveProperty('is_ignored', true)
+      expect(response.body).toHaveProperty('ownership_status', 'Ambiguous')
+    })
+  })
+
+  describe('GET /api/artists/:artistId - includeIgnored query param', () => {
+    let ignoredAlbumId: number
+
+    beforeEach(() => {
+      const db = getDatabase()
+
+      // Create an additional ignored album
+      const ignored = db
+        .prepare(
+          `
+        INSERT INTO Album (artist_id, mbid, title, release_year, ownership_status, is_ignored)
+        VALUES (?, '88888888-1234-5678-90ab-000000000003', 'Ignored Album', 2022, 'Missing', 1)
+      `
+        )
+        .run(testArtistId)
+
+      ignoredAlbumId = ignored.lastInsertRowid as number
+    })
+
+    it('should exclude ignored albums by default', async () => {
+      const response = await request(app)
+        .get(`/api/artists/${testArtistId}`)
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body.albums).toBeInstanceOf(Array)
+      expect(response.body.albums).toHaveLength(2) // Only non-ignored albums
+      expect(response.body.albums.every((a: any) => !a.is_ignored)).toBe(true)
+    })
+
+    it('should include ignored albums when includeIgnored=true', async () => {
+      const response = await request(app)
+        .get(`/api/artists/${testArtistId}?includeIgnored=true`)
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body.albums).toBeInstanceOf(Array)
+      expect(response.body.albums).toHaveLength(3) // All albums including ignored
+      expect(response.body.albums.filter((a: any) => a.is_ignored)).toHaveLength(1)
+    })
+
+    it('should handle includeIgnored=false explicitly', async () => {
+      const response = await request(app)
+        .get(`/api/artists/${testArtistId}?includeIgnored=false`)
+        .expect('Content-Type', /json/)
+        .expect(200)
+
+      expect(response.body.albums).toHaveLength(2)
+      expect(response.body.albums.every((a: any) => !a.is_ignored)).toBe(true)
+    })
+  })
 })

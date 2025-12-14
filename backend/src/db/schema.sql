@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS Album (
   matched_folder_path TEXT,
   match_confidence REAL,
   is_manual_override INTEGER NOT NULL DEFAULT 0,
+  is_ignored INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 
@@ -50,7 +51,9 @@ CREATE TABLE IF NOT EXISTS Album (
   CONSTRAINT chk_ownership_status CHECK (ownership_status IN ('Owned', 'Missing', 'Ambiguous')),
   CONSTRAINT chk_match_confidence CHECK (match_confidence IS NULL OR (match_confidence BETWEEN 0 AND 1)),
   CONSTRAINT chk_is_manual_override CHECK (is_manual_override IN (0, 1)),
-  CONSTRAINT chk_owned_has_path CHECK (ownership_status != 'Owned' OR matched_folder_path IS NOT NULL)
+  CONSTRAINT chk_is_ignored CHECK (is_ignored IN (0, 1)),
+  CONSTRAINT chk_owned_has_path CHECK (ownership_status != 'Owned' OR matched_folder_path IS NOT NULL),
+  CONSTRAINT chk_owned_not_ignored CHECK (ownership_status != 'Owned' OR is_ignored = 0)
 );
 
 -- Indexes for Album
@@ -58,6 +61,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_album_mbid ON Album(mbid);
 CREATE INDEX IF NOT EXISTS idx_album_artist_id ON Album(artist_id);
 CREATE INDEX IF NOT EXISTS idx_album_ownership ON Album(ownership_status);
 CREATE INDEX IF NOT EXISTS idx_album_manual ON Album(is_manual_override);
+CREATE INDEX IF NOT EXISTS idx_album_ignored ON Album(artist_id, is_ignored) WHERE is_ignored = 1;
 
 -- ============================================================================
 -- Settings Table (Singleton)
@@ -126,6 +130,15 @@ AFTER UPDATE ON Album
 FOR EACH ROW
 BEGIN
   UPDATE Album SET updated_at = datetime('now') WHERE id = OLD.id;
+END;
+
+-- Auto-clear ignored status when album becomes owned
+CREATE TRIGGER IF NOT EXISTS auto_unignore_owned_albums
+AFTER UPDATE OF ownership_status ON Album
+FOR EACH ROW
+WHEN NEW.ownership_status = 'Owned' AND NEW.is_ignored = 1
+BEGIN
+  UPDATE Album SET is_ignored = 0 WHERE id = NEW.id;
 END;
 
 -- Settings updated_at trigger

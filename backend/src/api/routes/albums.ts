@@ -54,6 +54,10 @@ router.patch(
       type: 'boolean',
       required: false,
     },
+    is_ignored: {
+      type: 'boolean',
+      required: false,
+    },
   }),
   asyncHandler(async (req, res) => {
     const albumId = parseInt(req.params.albumId, 10)
@@ -62,6 +66,19 @@ router.patch(
     const album = AlbumRepository.findById(albumId)
     if (!album) {
       throw createApiError('Album not found', 404, 'ALBUM_NOT_FOUND')
+    }
+
+    // Handle is_ignored update
+    if (req.body.is_ignored !== undefined) {
+      try {
+        const updatedAlbum = AlbumRepository.setIgnored(albumId, req.body.is_ignored)
+        return res.json(updatedAlbum)
+      } catch (error: any) {
+        if (error.message === 'Cannot ignore owned albums') {
+          throw createApiError('Cannot ignore owned albums', 403, 'CANNOT_IGNORE_OWNED')
+        }
+        throw error
+      }
     }
 
     // Handle clear_override request
