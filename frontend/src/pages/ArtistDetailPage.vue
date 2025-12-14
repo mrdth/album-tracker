@@ -75,7 +75,7 @@ const lastScanTime = computed(() => {
 })
 
 const goBack = () => {
-  router.push('/')
+  router.push('/collection')
 }
 
 const handleScan = async () => {
@@ -182,7 +182,7 @@ onMounted(() => {
             d="M15 19l-7-7 7-7"
           />
         </svg>
-        Back to Search
+        Back to Collection
       </button>
 
       <!-- Loading State -->
