@@ -109,8 +109,9 @@ export const api = {
   /**
    * Get artist detail with albums
    */
-  async getArtist(artistId: number): Promise<Artist> {
-    return apiRequest<Artist>(`/artists/${artistId}`)
+  async getArtist(artistId: number, includeIgnored = true): Promise<Artist> {
+    const params = includeIgnored ? '?includeIgnored=true' : ''
+    return apiRequest<Artist>(`/artists/${artistId}${params}`)
   },
 
   /**

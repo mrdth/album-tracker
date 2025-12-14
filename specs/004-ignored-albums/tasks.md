@@ -105,17 +105,17 @@
 
 ### Tests for User Story 2 (TDD - Write First)
 
-- [ ] T031 [US2] Write toggle view test in e2e/ignore-albums.spec.ts (toggle show ignored, verify albums reappear)
-- [ ] T032 [US2] Write un-ignore test in e2e/ignore-albums.spec.ts (un-ignore album, verify restored to normal)
+- [X] T031 [US2] Write toggle view test in e2e/ignore-albums.spec.ts (toggle show ignored, verify albums reappear)
+- [X] T032 [US2] Write un-ignore test in e2e/ignore-albums.spec.ts (un-ignore album, verify restored to normal)
 
 ### Implementation for User Story 2 (Frontend)
 
-- [ ] T033 [US2] Add toggle switch UI component in frontend/src/views/ArtistDetailPage.vue (Show Ignored Albums control)
-- [ ] T034 [US2] Add visual indicators for ignored albums in frontend/src/components/albums/AlbumCard.vue (opacity, badge, strikethrough)
-- [ ] T035 [US2] Add Un-ignore button to AlbumCard when ignored in frontend/src/components/albums/AlbumCard.vue
-- [ ] T036 [US2] Implement toggle state sync to URL query params using useAlbumFilter in frontend/src/views/ArtistDetailPage.vue
-- [ ] T037 [US2] Implement computed property for filtered albums in frontend/src/views/ArtistDetailPage.vue (reactive filtering)
-- [ ] T038 [US2] Run E2E tests to verify T031-T032 pass
+- [X] T033 [US2] Add toggle switch UI component in frontend/src/views/ArtistDetailPage.vue (Show Ignored Albums control)
+- [X] T034 [US2] Add visual indicators for ignored albums in frontend/src/components/albums/AlbumCard.vue (opacity, badge, strikethrough)
+- [X] T035 [US2] Add Un-ignore button to AlbumCard when ignored in frontend/src/components/albums/AlbumCard.vue
+- [X] T036 [US2] Implement toggle state sync to URL query params using useAlbumFilter in frontend/src/views/ArtistDetailPage.vue
+- [X] T037 [US2] Implement computed property for filtered albums in frontend/src/views/ArtistDetailPage.vue (reactive filtering)
+- [X] T038 [US2] Run E2E tests to verify T031-T032 pass
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
