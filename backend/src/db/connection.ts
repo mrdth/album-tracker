@@ -86,6 +86,34 @@ function runMigrations(database: Database.Database): void {
   if (!hasIsIgnored) {
     database.exec('ALTER TABLE Album ADD COLUMN is_ignored INTEGER NOT NULL DEFAULT 0')
     console.log('[DB] Migration: Added is_ignored column to Album table')
+
+    // Add constraint for is_ignored column
+    database.exec('ALTER TABLE Album ADD CONSTRAINT chk_is_ignored CHECK (is_ignored IN (0, 1))')
+    console.log('[DB] Migration: Added chk_is_ignored constraint to Album table')
+
+    // Add constraint to prevent owned albums from being ignored
+    database.exec(
+      "ALTER TABLE Album ADD CONSTRAINT chk_owned_not_ignored CHECK (ownership_status != 'Owned' OR is_ignored = 0)"
+    )
+    console.log('[DB] Migration: Added chk_owned_not_ignored constraint to Album table')
+
+    // Create index for ignored albums
+    database.exec(
+      'CREATE INDEX idx_album_ignored ON Album(artist_id, is_ignored) WHERE is_ignored = 1'
+    )
+    console.log('[DB] Migration: Created idx_album_ignored index')
+
+    // Create trigger to auto-clear ignored status when album becomes owned
+    database.exec(`
+      CREATE TRIGGER auto_unignore_owned_albums
+      AFTER UPDATE OF ownership_status ON Album
+      FOR EACH ROW
+      WHEN NEW.ownership_status = 'Owned' AND NEW.is_ignored = 1
+      BEGIN
+        UPDATE Album SET is_ignored = 0 WHERE id = NEW.id;
+      END
+    `)
+    console.log('[DB] Migration: Created auto_unignore_owned_albums trigger')
   }
 }
 
