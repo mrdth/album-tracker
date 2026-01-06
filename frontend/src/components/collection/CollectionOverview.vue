@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ArtistSummaryCard from './ArtistSummaryCard.vue'
 import { useCollectionFilter } from '../../stores/collectionFilter'
@@ -14,11 +14,20 @@ const router = useRouter()
 // Use the collection filter store
 const { sortBy, filterBy } = useCollectionFilter()
 
+// Local search state (not persisted)
+const searchText = ref('')
+
 // Computed sorted and filtered artists
 const displayedArtists = computed(() => {
   let result = [...props.artists]
 
-  // Apply filter
+  // Apply search filter
+  if (searchText.value.trim()) {
+    const search = searchText.value.toLowerCase()
+    result = result.filter(artist => artist.name.toLowerCase().includes(search))
+  }
+
+  // Apply completion filter
   if (filterBy.value === 'incomplete') {
     result = result.filter(artist => (artist.completion_percentage || 0) < 100)
   } else if (filterBy.value === 'complete') {
@@ -103,6 +112,17 @@ const overallCompletion = computed(() => {
             <option value="completion">Completion %</option>
             <option value="owned">Albums Owned</option>
           </select>
+        </div>
+
+        <!-- Search Input -->
+        <div class="flex items-center gap-2">
+          <input
+            id="search-input"
+            v-model="searchText"
+            type="text"
+            placeholder="Filter by artist name..."
+            class="px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm min-w-[200px]"
+          />
         </div>
 
         <!-- Filter Options -->
