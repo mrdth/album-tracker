@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ArtistSummaryCard from './ArtistSummaryCard.vue'
+import { useCollectionFilter } from '../../stores/collectionFilter'
 import type { Artist } from '../../../../shared/types/index.js'
 
 const props = defineProps<{
@@ -10,13 +11,8 @@ const props = defineProps<{
 
 const router = useRouter()
 
-// Sorting options
-type SortOption = 'name' | 'completion' | 'owned'
-const sortBy = ref<SortOption>('name')
-
-// Filter options
-type FilterOption = 'all' | 'incomplete' | 'complete'
-const filterBy = ref<FilterOption>('all')
+// Use the collection filter store
+const { sortBy, filterBy } = useCollectionFilter()
 
 // Computed sorted and filtered artists
 const displayedArtists = computed(() => {
@@ -24,9 +20,9 @@ const displayedArtists = computed(() => {
 
   // Apply filter
   if (filterBy.value === 'incomplete') {
-    result = result.filter((artist) => (artist.completion_percentage || 0) < 100)
+    result = result.filter(artist => (artist.completion_percentage || 0) < 100)
   } else if (filterBy.value === 'complete') {
-    result = result.filter((artist) => (artist.completion_percentage || 0) === 100)
+    result = result.filter(artist => (artist.completion_percentage || 0) === 100)
   }
 
   // Apply sort
@@ -97,9 +93,7 @@ const overallCompletion = computed(() => {
       <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <!-- Sort Options -->
         <div class="flex items-center gap-2">
-          <label for="sort-select" class="text-sm font-medium text-gray-700">
-            Sort by:
-          </label>
+          <label for="sort-select" class="text-sm font-medium text-gray-700"> Sort by: </label>
           <select
             id="sort-select"
             v-model="sortBy"
@@ -113,9 +107,7 @@ const overallCompletion = computed(() => {
 
         <!-- Filter Options -->
         <div class="flex items-center gap-2">
-          <label for="filter-select" class="text-sm font-medium text-gray-700">
-            Show:
-          </label>
+          <label for="filter-select" class="text-sm font-medium text-gray-700"> Show: </label>
           <select
             id="filter-select"
             v-model="filterBy"
@@ -143,10 +135,7 @@ const overallCompletion = computed(() => {
     </div>
 
     <!-- Empty State -->
-    <div
-      v-else
-      class="bg-white rounded-lg shadow-md p-12 text-center"
-    >
+    <div v-else class="bg-white rounded-lg shadow-md p-12 text-center">
       <svg
         class="mx-auto h-12 w-12 text-gray-400 mb-4"
         fill="none"

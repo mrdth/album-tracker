@@ -31,12 +31,6 @@ onMounted(() => {
 
 <template>
   <div class="collection-page container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">My Collection</h1>
-      <p class="text-gray-600">View and manage your music collection</p>
-    </div>
-
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center py-20">
       <LoadingSpinner />
