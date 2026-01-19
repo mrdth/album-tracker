@@ -58,6 +58,11 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
       throw new ApiError(errorData.error, response.status, errorData.code, errorData.details)
     }
 
+    // Handle 204 No Content responses (e.g., DELETE operations)
+    if (response.status === 204) {
+      return undefined as T
+    }
+
     // Parse JSON response
     const data: T = await response.json()
     return data
